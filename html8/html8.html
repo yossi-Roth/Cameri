@@ -1135,20 +1135,15 @@ window.addEventListener('mousemove', e => {
 monthTrack.addEventListener('scroll', () => {
   markCenter();
   clearTimeout(debounceTimer);
-  document.getElementById('showsList').classList.add('fading');
   debounceTimer = setTimeout(() => {
     const m = getCenterMonthIdx();
-    if (m !== selectedMonth) { selectedMonth = m; activeRangeStart = null; activeRangeEnd = null; }
-    updateBadge(); renderShows();
-    document.getElementById('showsList').classList.remove('fading');
-  }, 800);
+    if (m !== selectedMonth) { selectedMonth = m; scrollToMonthInList(m); }
+  }, 350);
 }, { passive: true });
 
 // ─── Show rendering ───────────────────────────────────────────────────────────
-function getFilteredShows(month, rStart, rEnd, types, shows, actors, langs) {
-  let s = ALL_SHOWS.filter(x => x.month === month);
-  if (rStart && rEnd) s = s.filter(x => x.day >= rStart && x.day <= rEnd);
-  else if (rStart)    s = s.filter(x => x.day === rStart);
+function getFilteredShows(types, shows, actors, langs) {
+  let s = [...ALL_SHOWS];
   if (types.size)  s = s.filter(x => types.has(x.tag));
   if (shows.size)  s = s.filter(x => shows.has(x.title));
   if (actors.size) s = s.filter(x => x.actors.some(a => actors.has(a)));
@@ -1177,9 +1172,9 @@ function buildTimesText(times) {
   }).join('');
 }
 
-function renderShows() {
-  const list   = document.getElementById('showsList');
-  const shows  = getFilteredShows(selectedMonth, activeRangeStart, activeRangeEnd, activeTypes, activeShows, activeActors, activeLangs);
+function renderShows(scrollTarget) {
+  const list  = document.getElementById('showsList');
+  const shows = getFilteredShows(activeTypes, activeShows, activeActors, activeLangs);
 
   if (!shows.length) {
     list.innerHTML = `<div class="no-results">
@@ -1190,16 +1185,17 @@ function renderShows() {
     return;
   }
 
-  // Group by day
+  // Group by month+day
   const byDay = [];
-  let lastDay = null;
+  let lastKey = null;
   shows.forEach(s => {
-    if (s.day !== lastDay) { byDay.push({ day: s.day, month: s.month, shows: [] }); lastDay = s.day; }
+    const key = s.month * 100 + s.day;
+    if (key !== lastKey) { byDay.push({ day: s.day, month: s.month, shows: [] }); lastKey = key; }
     byDay[byDay.length - 1].shows.push(s);
   });
 
   list.innerHTML = byDay.map(group => `
-    <div class="day-group">
+    <div class="day-group" data-month="${group.month}" data-day="${group.day}">
       <div class="day-divider">
         <div class="day-divider-line"></div>
         <div class="day-divider-text">
@@ -1223,7 +1219,59 @@ function renderShows() {
         </div>`).join('')}
     </div>`).join('');
 
+  if (scrollTarget) {
+    requestAnimationFrame(() => scrollToDay(scrollTarget.m, scrollTarget.d, false));
+  }
   if (window._updateStickyDayBar) window._updateStickyDayBar();
+}
+
+// ─── Fast smooth scroll helpers ───────────────────────────────────────────────
+function fastScrollTo(targetY, container) {
+  const start = container.scrollTop;
+  const diff  = targetY - start;
+  if (Math.abs(diff) < 2) return;
+  const duration = Math.min(600, Math.max(250, Math.abs(diff) * 0.5));
+  let t0 = null;
+  const ease = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+  (function step(now) {
+    if (!t0) t0 = now;
+    const p = Math.min((now - t0) / duration, 1);
+    container.scrollTop = start + diff * ease(p);
+    if (p < 1) requestAnimationFrame(step);
+    else updateCarouselFromScroll();
+  })(performance.now());
+}
+
+function scrollToDay(m, d, animate = true) {
+  const list  = document.getElementById('showsList');
+  const group = list.querySelector(`.day-group[data-month="${m}"][data-day="${d}"]`);
+  if (!group) return;
+  if (animate) fastScrollTo(group.offsetTop, list);
+  else list.scrollTop = group.offsetTop;
+}
+
+function scrollToMonthInList(m) {
+  const list  = document.getElementById('showsList');
+  const group = list.querySelector(`.day-group[data-month="${m}"]`);
+  if (group) fastScrollTo(group.offsetTop, list);
+}
+
+let _carouselSyncLock = false;
+function updateCarouselFromScroll() {
+  if (_carouselSyncLock) return;
+  const list = document.getElementById('showsList');
+  const scrollTop = list.scrollTop + 80;
+  let visibleMonth = null;
+  for (const g of list.querySelectorAll('.day-group')) {
+    if (g.offsetTop <= scrollTop) visibleMonth = +g.dataset.month;
+    else break;
+  }
+  if (visibleMonth !== null && visibleMonth !== selectedMonth) {
+    selectedMonth = visibleMonth;
+    _carouselSyncLock = true;
+    scrollToMonth(visibleMonth);
+    setTimeout(() => { _carouselSyncLock = false; }, 500);
+  }
 }
 
 // ─── Badges ───────────────────────────────────────────────────────────────────
@@ -1369,8 +1417,8 @@ function buildBigCalendar() {
     el.addEventListener('click', () => {
       const d = +el.dataset.day;
       if (drawerMode === 'date') {
-        activeCalMonth = draftCalMonth; activeRangeStart = d; activeRangeEnd = null;
-        draftRangeStart = d; updateBadge(); renderShows(); closeDrawer();
+        draftRangeStart = d; closeDrawer();
+        requestAnimationFrame(() => scrollToDay(draftCalMonth, d));
       } else {
         draftRangeStart = (draftRangeStart === d) ? null : d;
         draftRangeEnd = null; buildBigCalendar(); updateMainDrawerBadges();
@@ -1383,7 +1431,7 @@ document.getElementById('bigCalPrev').addEventListener('click', () => { draftCal
 document.getElementById('bigCalNext').addEventListener('click', () => { draftCalMonth = draftCalMonth===11?0:draftCalMonth+1; draftRangeStart=null; buildBigCalendar(); updateMainDrawerBadges(); });
 
 document.getElementById('applyDatesBtn').addEventListener('click', () => {
-  if (drawerMode === 'date') { activeCalMonth = draftCalMonth; activeRangeStart = draftRangeStart; activeRangeEnd = draftRangeEnd; updateBadge(); renderShows(); closeDrawer(); }
+  if (drawerMode === 'date') { closeDrawer(); if (draftRangeStart) requestAnimationFrame(() => scrollToDay(draftCalMonth, draftRangeStart)); }
   else goBackToMain();
 });
 
@@ -1523,6 +1571,13 @@ document.querySelectorAll('.filter-row[data-panel]').forEach(row => {
 
   window._updateStickyDayBar = updateStickyDayBar;
 })();
+
+// ─── List scroll → carousel sync ─────────────────────────────────────────────
+let _listScrollTimer = null;
+document.getElementById('showsList').addEventListener('scroll', () => {
+  clearTimeout(_listScrollTimer);
+  _listScrollTimer = setTimeout(updateCarouselFromScroll, 120);
+}, { passive: true });
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 buildMonthTrack();
