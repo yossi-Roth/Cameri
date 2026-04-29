@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1a1a1d">
+<title>לוח הופעות – הקאמרי</title>
+<style>
+/* ── Caravan display font (AAA) ── */
+@font-face {
+  font-family: 'Caravan';
+  src: url('fonts/caravan-90-aaa.woff') format('woff');
+  font-weight: 900; font-style: normal; font-display: swap;
+}
+
+/* ── FtOrvany – Normal stretch ── */
+@font-face { font-family:'FtOrvany'; src:url('fonts/FtOrvany0.69-Thin.otf') format('opentype'); font-weight:100; font-stretch:normal; font-display:swap; }
+@font-face { font-family:'FtOrvany'; src:url('fonts/FtOrvany0.69-ExtraLight.otf') format('opentype'); font-weight:200; font-stretch:normal; font-display:swap; }
+@font-face { font-family:'FtOrvany'; src:url('fonts/FtOrvany0.69-Regular.otf') format('opentype'); font-weight:400; font-stretch:normal; font-display:swap; }
+@font-face { font-family:'FtOrvany'; src:url('fonts/FtOrvany0.69-Black.otf') format('opentype'); font-weight:900; font-stretch:normal; font-display:swap; }
+
+/* ── FtOrvany – Condensed ── */
+@font-face { font-family:'FtOrvany'; src:url('fonts/FtOrvany0.69-ExtraLightCondensed.otf') format('opentype'); font-weight:200; font-stretch:condensed; font-display:swap; }
+@font-face { font-family:'FtOrvany'; src:url('fonts/FtOrvany0.69-RegularCondensed.otf') format('opentype'); font-weight:400; font-stretch:condensed; font-display:swap; }
+@font-face { font-family:'FtOrvany'; src:url('fonts/FtOrvany0.69-BlackCondensed.otf') format('opentype'); font-weight:900; font-stretch:condensed; font-display:swap; }
+
+/* ── FtOrvany – Semi-Condensed ── */
+@font-face { font-family:'FtOrvany'; src:url('fonts/FtOrvany0.69-ExtraLightSemiCondensed.otf') format('opentype'); font-weight:200; font-stretch:semi-condensed; font-display:swap; }
+@font-face { font-family:'FtOrvany'; src:url('fonts/FtOrvany0.69-RegularSemiCondenced.otf') format('opentype'); font-weight:400; font-stretch:semi-condensed; font-display:swap; }
+@font-face { font-family:'FtOrvany'; src:url('fonts/FtOrvany0.69-BoldSemiCondensed.otf') format('opentype'); font-weight:700; font-stretch:semi-condensed; font-display:swap; }
+@font-face { font-family:'FtOrvany'; src:url('fonts/FtOrvany0.69-BlackSemiCondenced.otf') format('opentype'); font-weight:900; font-stretch:semi-condensed; font-display:swap; }
+</style>
+<style>
+:root {
+  --bg:        #1a1a1d;
+  --bg-card:   #1f1f23;
+  --bg-drawer: #1c1c20;
+  --red:       #ed2527;
+  --red-hover: #c8102e;
+  --text:      #ffffff;
+  --text-dim:  #b5b9c6;
+  --sep:       #727272;
+  --sep-light: #2e2e34;
+  --link:      #f8d8cf;
+  --tag-h:     24px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400;
+  font-stretch: semi-condensed;
+  background: #0a0a0c;
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 0 64px;
+}
+
+/* ── Phone frame ── */
+.phone-frame {
+  width: 375px;
+  height: 812px;
+  background: var(--bg);
+  border-radius: 44px;
+  box-shadow: 0 32px 96px rgba(0,0,0,0.85), 0 0 0 1px #2a2a2e;
+  overflow: hidden;
+  position: relative;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 430px) {
+  body { background: var(--bg); padding: 0; }
+  .phone-frame { border-radius: 0; box-shadow: none; width: 100%; height: 100vh; }
+}
+
+/* ── Cameri sidebar logo ── */
+.cameri-sidebar {
+  position: absolute;
+  top: 0; right: 0;
+  width: 43px;
+  height: 120px;
+  z-index: 100;
+  overflow: hidden;
+  line-height: 0;
+}
+.cameri-sidebar img {
+  width: 43px;
+  height: 120px;
+  display: block;
+  object-fit: cover;
+}
+
+/* ── Header ── */
+.header {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 64px;
+  /* RTL: first child → inline-start (RIGHT), last child → inline-end (LEFT) */
+}
+/* In RTL flex, we put the right-side icons first in DOM → they sit on the RIGHT */
+.header-icons-right {
+  display: flex; align-items: center; gap: 14px;
+  padding-inline-end: 58px; /* clear the 43px logo + breathing room */
+}
+.header-icons-left  { display: flex; align-items: center; gap: 2px; }
+.header-divider {
+  width: 1px; height: 22px;
+  background: rgba(255,255,255,0.25);
+}
+.icon-btn {
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; cursor: pointer; color: #fff;
+  -webkit-tap-highlight-color: transparent; padding: 0;
+}
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  /* RTL: justify-content flex-start pushes items to the RIGHT (inline-start) */
+  justify-content: flex-start;
+  gap: 8px;
+  /* inline-start (right in RTL) padding clears the 43px logo sidebar */
+  padding: 0 20px 12px;
+  padding-inline-start: 68px;
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400;
+  font-stretch: semi-condensed;
+  font-size: 16px;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.064px;
+  flex-shrink: 0;
+}
+/* separator: the < points toward the current page name (left in RTL) */
+.breadcrumb-sep { font-size: 18px; opacity: 0.5; line-height: 1; }
+
+/* ── Month carousel ── */
+.month-section {
+  flex-shrink: 0;
+  position: relative;
+  height: 78px;
+  overflow: hidden;
+}
+.month-section::before,
+.month-section::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 90px;
+  pointer-events: none; z-index: 2;
+}
+.month-section::before {
+  left: 0;
+  background: linear-gradient(to right, var(--bg) 40%, transparent);
+}
+.month-section::after {
+  right: 0;
+  background: linear-gradient(to left, var(--bg) 40%, transparent);
+}
+.month-track {
+  display: flex;
+  align-items: center;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  direction: ltr;
+  cursor: grab;
+  height: 78px;
+}
+.month-track.dragging { cursor: grabbing; scroll-snap-type: none; }
+.month-track::-webkit-scrollbar { display: none; }
+.month-spacer { flex-shrink: 0; }
+.month-item {
+  scroll-snap-align: center;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 0 16px;
+  font-family: 'Caravan', sans-serif;
+  font-size: 48px;
+  font-weight: 900;
+  color: #4b4b4b;
+  letter-spacing: 5.4px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: color 0.18s;
+}
+.month-item.center { color: #fff; }
+.month-day-badge {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 900;
+  font-stretch: condensed;
+  font-size: 19px;
+  letter-spacing: 0;
+  color: rgba(255,255,255,0.82);
+  margin-bottom: 2px;
+}
+
+/* ── Search bar ── */
+.search-bar {
+  flex-shrink: 0;
+  margin: 0 18px 10px;
+  height: 50px;
+  background: #3a3a3a;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0 18px;
+  cursor: text;
+  -webkit-tap-highlight-color: transparent;
+}
+.search-placeholder {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400;
+  font-stretch: semi-condensed;
+  font-size: 20px;
+  color: #b5b9c6;
+  letter-spacing: 0.22px;
+}
+
+/* ── Active filters ── */
+.active-filters {
+  display: none; flex-direction: row; gap: 6px;
+  padding: 0 18px 8px;
+  overflow-x: auto; scrollbar-width: none;
+  flex-shrink: 0;
+}
+.active-filters::-webkit-scrollbar { display: none; }
+.active-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(237,37,39,0.16);
+  border: 1px solid rgba(237,37,39,0.42);
+  border-radius: 20px; padding: 4px 10px 4px 8px;
+  font-size: 12px; font-weight: 600; color: var(--text);
+  white-space: nowrap; cursor: pointer; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent; transition: opacity 0.12s;
+}
+.active-chip:active { opacity: 0.6; }
+.chip-x { font-size: 15px; line-height: 1; color: rgba(255,255,255,0.4); margin-top: -1px; }
+
+/* ── Shows list ── */
+.shows-list {
+  flex: 1; overflow-y: auto;
+  padding-bottom: 100px;
+  scrollbar-width: none;
+  transition: opacity 0.28s;
+}
+.shows-list::-webkit-scrollbar { display: none; }
+.shows-list.fading { opacity: 0.12; pointer-events: none; }
+
+/* ── Show card ── */
+.show-card {
+  display: flex;
+  flex-direction: row;        /* explicit — inherits RTL from html */
+  align-items: stretch;
+  gap: 14px;
+  padding: 24px 30px;
+  border-bottom: 1px solid var(--sep);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.14s;
+}
+.show-card:last-child { border-bottom: none; }
+.show-card:active { background: rgba(255,255,255,0.025); }
+
+/* In RTL flex, first child → RIGHT.  Poster is first → sits on the right. */
+.show-info {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  gap: 12px;
+}
+.show-top-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+/* In RTL flex within top-row: first child → RIGHT (date), second → LEFT (tag) */
+.category-tag {
+  display: inline-flex; align-items: center;
+  height: var(--tag-h);
+  padding: 2px 8px 1px;
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 700;
+  font-stretch: semi-condensed;
+  font-size: 15px;
+  letter-spacing: 0.4px;
+  color: #fff1ed;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.show-date {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400;
+  font-stretch: semi-condensed;
+  font-size: 19px;
+  color: #fff; letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.show-title {
+  font-family: 'Caravan', sans-serif;
+  font-weight: 900;
+  font-size: 24px;
+  color: #fff; line-height: 1.15;
+  text-align: right; width: 100%;
+  letter-spacing: 0.5px;
+}
+.show-desc {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400;
+  font-stretch: semi-condensed;
+  font-size: 15px;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.35; text-align: right; width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.show-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 900;
+  font-stretch: semi-condensed;
+  font-size: 17px;
+  color: var(--link);
+  letter-spacing: 0.72px;
+  cursor: pointer; text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.show-link svg { flex-shrink: 0; }
+
+.show-poster {
+  width: 96px; flex-shrink: 0;
+  border-radius: 2px; overflow: hidden;
+  background-size: cover; background-position: center;
+  min-height: 110px;
+}
+
+.no-results {
+  padding: 56px 30px; text-align: center;
+  color: var(--text-dim); font-size: 15px; line-height: 1.6;
+}
+.no-results strong {
+  display: block; color: var(--text);
+  font-size: 18px; font-weight: 700; margin-bottom: 8px;
+}
+
+/* ── Filter FAB ── */
+.filter-fab {
+  position: absolute; bottom: 28px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--red); color: #fff; border: none;
+  min-width: 172px; height: 62px;
+  padding: 0 28px;
+  display: flex; align-items: center;
+  justify-content: center; gap: 10px;
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 900;
+  font-stretch: semi-condensed;
+  font-size: 24px;
+  letter-spacing: 0.96px;
+  cursor: pointer; z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s, transform 0.12s;
+  white-space: nowrap;
+  box-shadow: 0 6px 28px rgba(237,37,39,0.45), 0 2px 8px rgba(0,0,0,0.5);
+}
+.filter-fab:active {
+  background: var(--red-hover);
+  transform: translateX(-50%) scale(0.97);
+}
+.filter-badge {
+  background: #fff; color: var(--red);
+  border-radius: 50%; min-width: 20px; height: 20px;
+  font-size: 11px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 2px;
+}
+
+/* ── Overlay ── */
+.overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.68);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s; z-index: 20;
+}
+.overlay.visible { opacity: 1; pointer-events: all; }
+
+/* ══════════════════════════════════════════
+   DRAWER SHELL
+══════════════════════════════════════════ */
+.drawer {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 88%;
+  border-radius: 30px 30px 0 0;
+  overflow: hidden;
+  transform: translateY(100%);
+  transition: transform 0.36s cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: 30;
+}
+.drawer.open { transform: translateY(0); }
+
+/* ══════════════════════════════════════════
+   PANELS — each fills the drawer
+══════════════════════════════════════════ */
+.drawer-panel {
+  position: absolute; inset: 0;
+  background: #fff1ed;
+  display: flex; flex-direction: column;
+  transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+}
+/* Main panel visible by default */
+#drawerMain { transform: translateX(0); }
+/* Sub-panels start off-screen to the left */
+#panelDates, #panelShows, #panelActors { transform: translateX(-100%); }
+/* Panel animation states */
+.panel-out { transform: translateX(100%)  !important; }
+.panel-in  { transform: translateX(0)     !important; }
+
+/* ══════════════════════════════════════════
+   MAIN PANEL — handle + header
+══════════════════════════════════════════ */
+.drawer-handle-wrap {
+  padding: 14px 0 8px;
+  display: flex; justify-content: center; flex-shrink: 0;
+}
+.drawer-handle {
+  width: 56px; height: 6px;
+  background: #1a1a1d; opacity: 0.7; border-radius: 3px;
+}
+.drawer-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 24px 14px; flex-shrink: 0;
+  border-bottom: 1px solid rgba(42,42,44,0.12);
+}
+.drawer-title {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400; font-stretch: semi-condensed;
+  font-size: 22px; color: #1a1a1d;
+}
+.drawer-clear {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400; font-stretch: semi-condensed;
+  font-size: 16px; color: rgba(42,42,44,0.4);
+  background: none; border: none; cursor: pointer;
+  padding: 4px 0; -webkit-tap-highlight-color: transparent;
+}
+.drawer-clear:active { color: #ed2527; }
+.drawer-body { overflow-y: auto; flex: 1; scrollbar-width: none; }
+.drawer-body::-webkit-scrollbar { display: none; }
+
+/* ── Drilldown rows on main panel ── */
+.filter-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(42,42,44,0.1);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s;
+}
+.filter-row:active { background: rgba(42,42,44,0.04); }
+/* RTL: first child → RIGHT (title+badge), second child → LEFT (chevron) */
+.filter-row-right {
+  display: flex; align-items: center; gap: 10px; flex: 1;
+}
+.filter-row-title {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 900; font-stretch: semi-condensed;
+  font-size: 22px; color: #1a1a1d; white-space: nowrap;
+}
+.filter-row-chevron {
+  font-size: 22px; color: rgba(42,42,44,0.38); flex-shrink: 0; line-height: 1;
+}
+/* Pink pill badge (for date range) */
+.badge-pill {
+  background: rgba(237,37,39,0.13); color: #c8102e;
+  border-radius: 20px; padding: 3px 10px;
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 700; font-stretch: semi-condensed;
+  font-size: 12px; white-space: nowrap;
+}
+/* Pink circle badge (for counts) */
+.badge-count {
+  background: rgba(237,37,39,0.13); color: #c8102e;
+  border-radius: 50%; min-width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 700; font-size: 13px; flex-shrink: 0;
+}
+
+/* ── Inline sections (type chips + language) ── */
+.filter-inline-section {
+  padding: 20px 24px 24px;
+  border-bottom: 1px solid rgba(42,42,44,0.1);
+}
+.filter-inline-title {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 900; font-stretch: semi-condensed;
+  font-size: 22px; color: #1a1a1d; margin-bottom: 14px;
+}
+/* Type chips */
+.chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.type-chip {
+  height: 36px; padding: 0 18px; border-radius: 70px;
+  border: 1px solid #2a2a2c; background: transparent; color: #2a2a2c;
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400; font-stretch: semi-condensed; font-size: 15px;
+  cursor: pointer; transition: all 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap; display: inline-flex; align-items: center;
+}
+.type-chip.selected { background: #2a2a2c; color: #fff1ed; border-color: #2a2a2c; }
+.type-chip:active { opacity: 0.7; }
+/* Language — horizontal row */
+.lang-inline-row { display: flex; justify-content: space-around; }
+.lang-inline-item {
+  display: flex; align-items: center; gap: 5px;
+  cursor: pointer; padding: 6px 0;
+  -webkit-tap-highlight-color: transparent;
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400; font-stretch: semi-condensed;
+  font-size: 16px; color: #1a1a1d;
+}
+.lang-inline-item.selected { font-weight: 700; }
+.lang-check-icon { font-size: 13px; color: rgba(42,42,44,0.18); }
+.lang-inline-item.selected .lang-check-icon { color: #ed2527; }
+
+/* ── Drawer footer ── */
+.drawer-footer { flex-shrink: 0; padding: 0; }
+.apply-btn {
+  width: 100%; height: 64px;
+  background: #ed2527; color: #fff;
+  border: none; border-radius: 0;
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 900; font-stretch: semi-condensed;
+  font-size: 24px; letter-spacing: 0.5px;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+.apply-btn:active { background: #c8102e; }
+
+/* ══════════════════════════════════════════
+   SUB-PANEL SHARED COMPONENTS
+══════════════════════════════════════════ */
+.panel-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 16px; flex-shrink: 0;
+  border-bottom: 1px solid rgba(42,42,44,0.1);
+}
+/* RTL: ›  back btn goes first → RIGHT; title goes after → fills LEFT */
+.panel-back {
+  font-size: 26px; line-height: 1; color: #1a1a1d;
+  background: none; border: none; cursor: pointer;
+  padding: 0 4px; -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+.panel-title {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 900; font-stretch: semi-condensed;
+  font-size: 22px; color: #1a1a1d; flex: 1; text-align: center;
+}
+.panel-clear {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400; font-stretch: semi-condensed;
+  font-size: 15px; color: rgba(42,42,44,0.4);
+  background: none; border: none; cursor: pointer;
+  padding: 4px 0; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+}
+.panel-clear:active { color: #ed2527; }
+.panel-body { flex: 1; overflow-y: auto; scrollbar-width: none; }
+.panel-body::-webkit-scrollbar { display: none; }
+.panel-footer { flex-shrink: 0; }
+
+/* Search bar */
+.panel-search {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(42,42,44,0.1);
+  direction: rtl;
+}
+.panel-search-input {
+  flex: 1; border: none; outline: none;
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400; font-stretch: semi-condensed;
+  font-size: 17px; color: #1a1a1d;
+  background: transparent; text-align: right; direction: rtl;
+}
+.panel-search-input::placeholder { color: rgba(42,42,44,0.3); }
+
+/* Selected chips strip */
+.selected-chips-strip {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 10px 20px; min-height: 46px;
+  border-bottom: 1px solid rgba(42,42,44,0.08);
+}
+.selected-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #2a2a2c; color: #fff1ed;
+  border-radius: 20px; padding: 5px 10px 5px 12px;
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400; font-stretch: semi-condensed; font-size: 14px;
+  cursor: pointer; flex-shrink: 0; -webkit-tap-highlight-color: transparent;
+}
+.selected-chip-x { font-size: 15px; opacity: 0.6; }
+
+/* Checklist rows */
+.checklist-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(42,42,44,0.06);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s;
+}
+.checklist-row:last-child { border-bottom: none; }
+.checklist-row:active { background: rgba(42,42,44,0.03); }
+/* RTL: label first → RIGHT; checkmark second → LEFT */
+.checklist-label {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400; font-stretch: semi-condensed;
+  font-size: 18px; color: #1a1a1d;
+}
+.checklist-row.selected .checklist-label { font-weight: 700; }
+.checklist-check {
+  width: 22px; text-align: center; font-size: 14px; flex-shrink: 0;
+  color: rgba(42,42,44,0.18); /* dim ✓ unselected */
+}
+.checklist-row.selected .checklist-check { color: #ed2527; } /* red ✓ selected */
+
+/* ══════════════════════════════════════════
+   DATE PICKER PANEL
+══════════════════════════════════════════ */
+.big-cal-nav-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 20px 16px 8px;
+}
+.big-cal-btn {
+  font-size: 30px; color: rgba(42,42,44,0.32); line-height: 1;
+  background: none; border: none; cursor: pointer;
+  padding: 8px; -webkit-tap-highlight-color: transparent;
+}
+.big-cal-btn:active { color: #1a1a1d; }
+.big-cal-month-display { display: inline-flex; align-items: baseline; gap: 3px; }
+.big-cal-month-name {
+  font-family: 'Caravan', sans-serif;
+  font-weight: 900; font-size: 48px;
+  color: #1a1a1d; line-height: 1; letter-spacing: 2px;
+}
+.big-cal-year-badge {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 900; font-stretch: condensed;
+  font-size: 17px; color: #1a1a1d;
+}
+/* Range from/to labels */
+.range-labels-row {
+  display: flex; padding: 8px 24px 14px; gap: 16px; direction: rtl;
+}
+.range-field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.range-field-label {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 400; font-stretch: semi-condensed;
+  font-size: 13px; color: rgba(42,42,44,0.45);
+}
+.range-field-value {
+  font-family: 'FtOrvany', sans-serif;
+  font-weight: 700; font-stretch: semi-condensed;
+  font-size: 14px; color: #1a1a1d; min-height: 18px;
+}
+.range-field-line { height: 1px; background: rgba(42,42,44,0.22); margin-top: 3px; }
+
+/* Calendar grid */
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 2px 0; padding: 0 8px 8px;
+}
+.cal-dow {
+  text-align: center; font-size: 11px; font-weight: 700;
+  color: rgba(42,42,44,0.32); padding: 0 0 8px;
+}
+.cal-day {
+  aspect-ratio: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 400;
+  color: #1a1a1d; cursor: pointer; position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+.cal-num {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; z-index: 1; transition: background 0.1s;
+}
+.cal-day.other-month { color: rgba(42,42,44,0.18); pointer-events: none; }
+.cal-day.dimmed { color: rgba(42,42,44,0.3); }
+.cal-day.has-shows { font-weight: 700; }
+.cal-day.today .cal-num { box-shadow: inset 0 0 0 1.5px rgba(42,42,44,0.35); }
+/* Range strip */
+.cal-day.in-range::before,
+.cal-day.range-start::before,
+.cal-day.range-end::before {
+  content: ''; position: absolute;
+  top: 16%; bottom: 16%; left: 0; right: 0;
+  background: rgba(237,37,39,0.12); pointer-events: none;
+}
+.cal-day.range-start::before { left: 50%; }
+.cal-day.range-end::before   { right: 50%; }
+.cal-day.range-start.range-end::before { display: none; }
+.cal-day.range-start .cal-num,
+.cal-day.range-end .cal-num { background: #ed2527; color: #fff; font-weight: 700; }
+.cal-day.range-start.today .cal-num,
+.cal-day.range-end.today .cal-num { box-shadow: none; }
+.cal-day.in-range { color: #1a1a1d; }
+.cal-day:active:not(.range-start):not(.range-end):not(.other-month) .cal-num {
+  background: rgba(42,42,44,0.08);
+}
+.cal-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: #ed2527; margin-top: 1px; position: relative; z-index: 1;
+}
+.cal-day.range-start .cal-dot,
+.cal-day.range-end .cal-dot { background: rgba(255,255,255,0.7); }
+.cal-range-hint {
+  text-align: center; font-size: 11px; color: rgba(42,42,44,0.4);
+  padding: 6px 0 10px; letter-spacing: 0.3px;
+}
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- Cameri logo sidebar (real PNG, 43×120px) -->
+  <div class="cameri-sidebar">
+    <img src="cameri-logo-sidebar.png" alt="הקאמרי – התיאטרון הלאומי של תל אביב–יפו">
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-bar">
+      <!--
+        RTL flex: first child → inline-start (RIGHT side).
+        Right-side icons come first in DOM so they land on the right.
+        Search comes second so it lands on the left.
+      -->
+      <div class="header-icons-right">
+        <button class="icon-btn" aria-label="לוח שנה">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="5" width="18" height="16" rx="2" stroke="white" stroke-width="1.6"/>
+            <path d="M3 10h18" stroke="white" stroke-width="1.6"/>
+            <path d="M8 3v4M16 3v4" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="8" cy="15" r="1" fill="white"/>
+            <circle cx="12" cy="15" r="1" fill="white"/>
+            <circle cx="16" cy="15" r="1" fill="white"/>
+          </svg>
+        </button>
+        <div class="header-divider"></div>
+        <button class="icon-btn" aria-label="תפריט">
+          <svg width="22" height="16" viewBox="0 0 22 16" fill="none">
+            <path d="M2 2h18M2 8h18M2 14h18" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="header-icons-left">
+        <button class="icon-btn" aria-label="חיפוש">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <circle cx="10.5" cy="10.5" r="7" stroke="white" stroke-width="1.8"/>
+            <path d="M16 16L21 21" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Breadcrumb: RTL reads right→left: ראשי < לוח ההצגות -->
+    <div class="breadcrumb">
+      <span>ראשי</span>
+      <span class="breadcrumb-sep">&lt;</span>
+      <span>לוח ההצגות</span>
+    </div>
+  </div>
+
+  <!-- Month carousel -->
+  <div class="month-section">
+    <div class="month-track" id="monthTrack"></div>
+  </div>
+
+  <!-- Search bar -->
+  <div class="search-bar">
+    <span class="search-placeholder">חיפוש</span>
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <circle cx="9.5" cy="9.5" r="7" stroke="#b5b9c6" stroke-width="1.7"/>
+      <path d="M15 15L20 20" stroke="#b5b9c6" stroke-width="1.7" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <!-- Active filters strip -->
+  <div class="active-filters" id="activeFilters"></div>
+
+  <!-- Shows list -->
+  <div class="shows-list" id="showsList"></div>
+
+  <!-- Filter FAB -->
+  <button class="filter-fab" id="filterFab">
+    <span>סינון</span>
+    <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+      <path d="M1 2h18M4 8h12M7 14h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    <span class="filter-badge" id="filterBadge" style="display:none">0</span>
+  </button>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Filter Drawer — multi-panel system -->
+  <div class="drawer" id="drawer">
+
+    <!-- ══ MAIN PANEL ══ -->
+    <div class="drawer-panel" id="drawerMain">
+      <div class="drawer-handle-wrap"><div class="drawer-handle"></div></div>
+      <div class="drawer-header">
+        <!-- RTL: title first → RIGHT, clear second → LEFT -->
+        <span class="drawer-title">מסננים</span>
+        <button class="drawer-clear" id="clearBtn">איפוס</button>
+      </div>
+      <div class="drawer-body">
+
+        <!-- תאריכים → drilldown -->
+        <div class="filter-row" data-panel="panelDates">
+          <div class="filter-row-right">
+            <span class="filter-row-title">תאריכים</span>
+            <span id="badgeDates"></span>
+          </div>
+          <span class="filter-row-chevron">‹</span>
+        </div>
+
+        <!-- הצגות → drilldown -->
+        <div class="filter-row" data-panel="panelShows">
+          <div class="filter-row-right">
+            <span class="filter-row-title">הצגות</span>
+            <span id="badgeShows"></span>
+          </div>
+          <span class="filter-row-chevron">‹</span>
+        </div>
+
+        <!-- שחקנים → drilldown -->
+        <div class="filter-row" data-panel="panelActors">
+          <div class="filter-row-right">
+            <span class="filter-row-title">שחקנים</span>
+            <span id="badgeActors"></span>
+          </div>
+          <span class="filter-row-chevron">‹</span>
+        </div>
+
+        <!-- Inline: סוג האירוע -->
+        <div class="filter-inline-section">
+          <div class="filter-inline-title">סוג האירוע</div>
+          <div class="chip-group" id="typeChips"></div>
+        </div>
+
+        <!-- Inline: שפת כתוביות -->
+        <div class="filter-inline-section">
+          <div class="filter-inline-title">שפת כתוביות</div>
+          <div class="lang-inline-row" id="langList"></div>
+        </div>
+
+      </div>
+      <div class="drawer-footer">
+        <button class="apply-btn" id="applyBtn">סינון</button>
+      </div>
+    </div>
+
+    <!-- ══ PANEL: תאריכים ══ -->
+    <div class="drawer-panel" id="panelDates">
+      <div class="panel-header">
+        <!-- RTL: › back first → RIGHT; title center; ניקוי last → LEFT -->
+        <button class="panel-back" id="backFromDates">›</button>
+        <span class="panel-title">בחירת תאריכים</span>
+        <button class="panel-clear" id="clearDatesBtn">ניקוי</button>
+      </div>
+      <div class="panel-body">
+        <div class="big-cal-nav-row">
+          <button class="big-cal-btn" id="bigCalPrev">‹</button>
+          <div class="big-cal-month-display">
+            <span class="big-cal-month-name" id="bigCalMonthName">אפריל</span><span class="big-cal-year-badge" id="bigCalYearBadge">26</span>
+          </div>
+          <button class="big-cal-btn" id="bigCalNext">›</button>
+        </div>
+        <div class="range-labels-row">
+          <!-- RTL: מ- (start) first → RIGHT; עד- (end) second → LEFT -->
+          <div class="range-field">
+            <span class="range-field-label">מ-</span>
+            <span class="range-field-value" id="rangeFromVal"></span>
+            <div class="range-field-line"></div>
+          </div>
+          <div class="range-field">
+            <span class="range-field-label">עד-</span>
+            <span class="range-field-value" id="rangeToVal"></span>
+            <div class="range-field-line"></div>
+          </div>
+        </div>
+        <div id="bigCalGrid"></div>
+      </div>
+      <div class="panel-footer">
+        <button class="apply-btn" id="applyDatesBtn">בחירה</button>
+      </div>
+    </div>
+
+    <!-- ══ PANEL: הצגות ══ -->
+    <div class="drawer-panel" id="panelShows">
+      <div class="panel-header">
+        <button class="panel-back" id="backFromShows">›</button>
+        <span class="panel-title">הצגות</span>
+        <span style="width:34px"></span><!-- RTL spacer to center title -->
+      </div>
+      <div class="panel-body">
+        <div class="panel-search">
+          <input class="panel-search-input" id="showsSearch" type="text" placeholder="חיפוש">
+          <svg width="18" height="18" viewBox="0 0 22 22" fill="none" flex-shrink="0">
+            <circle cx="9.5" cy="9.5" r="7" stroke="rgba(42,42,44,0.3)" stroke-width="1.7"/>
+            <path d="M15 15L20 20" stroke="rgba(42,42,44,0.3)" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="selected-chips-strip" id="showsChipsStrip"></div>
+        <div id="showsChecklist"></div>
+      </div>
+      <div class="panel-footer">
+        <button class="apply-btn" id="applyShowsBtn">בחירה</button>
+      </div>
+    </div>
+
+    <!-- ══ PANEL: שחקנים ══ -->
+    <div class="drawer-panel" id="panelActors">
+      <div class="panel-header">
+        <button class="panel-back" id="backFromActors">›</button>
+        <span class="panel-title">שחקנים</span>
+        <span style="width:34px"></span>
+      </div>
+      <div class="panel-body">
+        <div class="panel-search">
+          <input class="panel-search-input" id="actorsSearch" type="text" placeholder="חיפוש">
+          <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+            <circle cx="9.5" cy="9.5" r="7" stroke="rgba(42,42,44,0.3)" stroke-width="1.7"/>
+            <path d="M15 15L20 20" stroke="rgba(42,42,44,0.3)" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="selected-chips-strip" id="actorsChipsStrip"></div>
+        <div id="actorsChecklist"></div>
+      </div>
+      <div class="panel-footer">
+        <button class="apply-btn" id="applyActorsBtn">בחירה</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+// ─── Data ───────────────────────────────────────────────────────────────────
+const MONTHS = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני',
+                'יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+
+const DOW_NAMES = ["יום א'","יום ב'","יום ג'","יום ד'","יום ה'","יום ו'",'שבת'];
+const DOW_HE    = ['א','ב','ג','ד','ה','ו','ש'];
+
+// Real Cameri categories (הכל is handled as a special chip, not in this array)
+const SHOW_TYPES = ['הצגות','קפה תיאטרון','קאמרי פנורמה','פסטיבלים','הצגות אורחות','מחוות ואירועים ספרותיים'];
+
+const ACTORS = ['נורית גלרון','יגאל נאור','מוני מושונוב','אורנה פורת',
+                'שרון אלכסנדר','עמית מרקוס','שי אביבי','דנה איבגי',
+                'תמי ברקאי','אסי כהן','מלי שניידר','רמי הויברגר'];
+
+const LANGS = ['עברית', 'Русский', 'English'];
+
+// Category tag background colors on dark show cards
+const TAG_COLORS = {
+  'הצגות':                      '#2a0f3a',
+  'קפה תיאטרון':                '#0f2420',
+  'קאמרי פנורמה':               '#1a1030',
+  'פסטיבלים':                   '#2a1408',
+  'הצגות אורחות':               '#081828',
+  'מחוות ואירועים ספרותיים':    '#0a2010',
+};
+
+const POSTER_BG = {
+  'הצגות':                      'linear-gradient(155deg,#2a1028 0%,#5c1f42 100%)',
+  'קפה תיאטרון':                'linear-gradient(155deg,#0f2420 0%,#1e5040 100%)',
+  'קאמרי פנורמה':               'linear-gradient(155deg,#1a1030 0%,#3a1870 100%)',
+  'פסטיבלים':                   'linear-gradient(155deg,#2a1408 0%,#7a3010 100%)',
+  'הצגות אורחות':               'linear-gradient(155deg,#081828 0%,#102050 100%)',
+  'מחוות ואירועים ספרותיים':    'linear-gradient(155deg,#0a180a 0%,#1a3820 100%)',
+};
+
+const ALL_SHOWS = [
+  // April (month 3)
+  { month:3, day:10, time:'11:00', title:'חשמלית ושמה תשוקה',   sub:'מערכת יחסים מפתיעה ויוצאת דופן בין שחקנית צעירה ודיוות תיאטרון',              tag:'הצגות',                   actors:['נורית גלרון','יגאל נאור']            },
+  { month:3, day:10, time:'19:00', title:'ריצ׳רד השלישי',        sub:'שייקספיר בעברית · בימוי ניר מסאס · הצגת דגל',                                 tag:'הצגות',                   actors:['שרון אלכסנדר','רמי הויברגר']         },
+  { month:3, day:10, time:'21:30', title:'ספרינג אוואקנינג',     sub:'מחזמר מרהיב · עידו ריקלין · מוזיקה: Duncan Sheik',                            tag:'קאמרי פנורמה',            actors:['שי אביבי','מלי שניידר']              },
+  { month:3, day:15, time:'19:00', title:'דודה ואניה',           sub:'צ׳כוב · תרגום חדש · הפקה קאמרית מיוחדת',                                      tag:'הצגות',                   actors:['נורית גלרון','רמי הויברגר']          },
+  { month:3, day:15, time:'21:00', title:'מונולוג אישי',         sub:'תיאטרון ניסויי · פרמיירה ישראלית',                                              tag:'הצגות',                   actors:['עמית מרקוס']                         },
+  { month:3, day:18, time:'10:00', title:'מופע בוקר לילדים',     sub:'הנסיך הקטן · מחזה מוזיקלי לכל המשפחה · מגיל 4',                              tag:'פסטיבלים',                actors:['תמי ברקאי']                          },
+  { month:3, day:18, time:'19:00', title:'שיעורים בפינגווינית',  sub:'קומדיה חדשה · מערכת יחסים ויוצאת דופן בין שתי שחקניות',                       tag:'קפה תיאטרון',             actors:['מוני מושונוב','מלי שניידר']          },
+  { month:3, day:23, time:'19:00', title:'הסוחר מוונציה',        sub:'שייקספיר · בימוי: ניר מסאס · הפקת פסטיבל',                                    tag:'פסטיבלים',                actors:['יגאל נאור','שרון אלכסנדר']          },
+  { month:3, day:23, time:'21:30', title:'לילה אחד',             sub:'מחזה קאמרי מקורי · בכורה ישראלית',                                             tag:'הצגות',                   actors:['דנה איבגי','עמית מרקוס']            },
+  { month:3, day:27, time:'19:30', title:'ערב ג׳אז ושירה',       sub:'אירוע מיוחד עם כוכבי הבמה הישראלית · כניסה חופשית',                          tag:'מחוות ואירועים ספרותיים', actors:['נורית גלרון','שי אביבי']             },
+  // May (month 4)
+  { month:4, day:2,  time:'11:00', title:'קומדיה של טעויות',     sub:'שייקספיר · תרגום: חיים גורי · הצגת בוקר',                                     tag:'קפה תיאטרון',             actors:['אסי כהן','מוני מושונוב']            },
+  { month:4, day:2,  time:'19:00', title:'הבובנאי',              sub:'הצגת בכורה · מחזה מקורי ישראלי חדש',                                           tag:'הצגות',                   actors:['עמית מרקוס','דנה איבגי']            },
+  { month:4, day:8,  time:'16:00', title:'שלוש אחיות',           sub:'צ׳כוב · הפקה חדשה · פרמיירה של העונה',                                         tag:'הצגות',                   actors:['אורנה פורת','נורית גלרון']          },
+  { month:4, day:8,  time:'21:00', title:'גלגל הזמן',            sub:'פנטסיה · תיאטרון ניסויי · מגיל 16',                                            tag:'הצגות אורחות',            actors:['שי אביבי']                           },
+  { month:4, day:14, time:'10:30', title:'כיפה אדומה',           sub:'הצגה לילדים · מחזה מוזיקלי מחודש · מגיל 3',                                   tag:'פסטיבלים',                actors:['תמי ברקאי','מלי שניידר']            },
+  { month:4, day:14, time:'19:00', title:'המלך ליר',             sub:'שייקספיר · בימוי: ניר מסאס · הפקת הדגל של הקאמרי',                            tag:'הצגות',                   actors:['יגאל נאור']                          },
+  { month:4, day:20, time:'18:30', title:'שלושה בסירה',          sub:'קומדיה קלאסית · לאחר הצגת הבכורה הגדולה',                                     tag:'קאמרי פנורמה',            actors:['מוני מושונוב','תמי ברקאי','אסי כהן'] },
+  { month:4, day:20, time:'21:00', title:'הדיבוק',               sub:'אנ-סקי · הפקה חדשה · הצגת בכורה עולמית',                                      tag:'הצגות',                   actors:['שרון אלכסנדר','רמי הויברגר']         },
+  // June (month 5)
+  { month:5, day:5,  time:'19:00', title:'מחכים לגודו',          sub:'בקט · בימוי: ורד שמחוני · הפקת קאמרי מיוחדת',                                 tag:'הצגות',                   actors:['יגאל נאור','אסי כהן']               },
+  { month:5, day:5,  time:'21:30', title:'סיפורים מהכפר',        sub:'תיאטרון ניסויי · בימוי קולקטיבי',                                              tag:'הצגות אורחות',            actors:['עמית מרקוס']                         },
+  { month:5, day:12, time:'19:00', title:'אוטלו',                sub:'שייקספיר בתרגום חדש · הפקת פסטיבל',                                            tag:'פסטיבלים',                actors:['יגאל נאור','דנה איבגי']             },
+  { month:5, day:19, time:'18:00', title:'ליל שישי',             sub:'מחזה מקורי ישראלי · בכורה עולמית',                                             tag:'הצגות',                   actors:['דנה איבגי','נורית גלרון']           },
+  { month:5, day:25, time:'11:00', title:'הנסיך הקטן',           sub:'הצגה לילדים ולמשפחה · מגיל 4',                                                tag:'פסטיבלים',                actors:['תמי ברקאי']                          },
+];
+
+// All unique show titles (preserve natural data order, deduplicated)
+const ALL_SHOW_TITLES = [...new Set(ALL_SHOWS.map(s => s.title))];
+
+// ─── Constants ──────────────────────────────────────────────────────────────
+const CAL_YEAR = 2026;
+const TODAY_M  = 3;   // April (0-indexed)
+const TODAY_D  = 25;
+const FRAME_W  = 375;
+
+// ─── State ──────────────────────────────────────────────────────────────────
+let selectedMonth = 3;
+
+// Active (committed) filters
+let activeRangeStart = null, activeRangeEnd = null;
+let activeCalMonth   = 3;
+let activeTypes  = new Set();
+let activeShows  = new Set();
+let activeActors = new Set();
+let activeLangs  = new Set();
+
+// Draft (in-drawer) filters
+let draftRangeStart = null, draftRangeEnd = null;
+let draftCalMonth   = 3;
+let draftTypes      = new Set();
+let draftShows      = new Set();
+let draftActors     = new Set();
+let draftLangs      = new Set();
+
+let debounceTimer = null;
+
+// ─── SVGs ────────────────────────────────────────────────────────────────────
+const CHECK_SVG = `<svg width="11" height="9" viewBox="0 0 11 9" fill="none">
+  <path d="M1 4.5l3 3L10 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+const LINK_ARROW = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+  <path d="M11 8H5M5 8L8 5M5 8L8 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function getDowHe(month, day) {
+  return DOW_NAMES[new Date(CAL_YEAR, month, day).getDay()];
+}
+function formatDate(month, day) {
+  return `${String(day).padStart(2,'0')}.${String(month + 1).padStart(2,'0')}`;
+}
+
+// ─── Month carousel ───────────────────────────────────────────────────────────
+const monthTrack = document.getElementById('monthTrack');
+
+function buildMonthTrack() {
+  // RTL: reversed so ינואר appears right
+  const labels = MONTHS.slice().reverse();
+
+  monthTrack.innerHTML = '';
+
+  // Left spacer placeholder (set after layout)
+  const lSpacer = document.createElement('div');
+  lSpacer.className = 'month-spacer'; lSpacer.id = 'mSpacerL';
+  monthTrack.appendChild(lSpacer);
+
+  labels.forEach((label, i) => {
+    const realIdx = 11 - i;
+    const isActive = realIdx === selectedMonth;
+    const div = document.createElement('div');
+    div.className = 'month-item' + (isActive ? ' center' : '');
+    div.dataset.idx = realIdx;
+    if (isActive && realIdx === TODAY_M) {
+      div.innerHTML = `${label}<span class="month-day-badge">${TODAY_D}</span>`;
+    } else {
+      div.textContent = label;
+    }
+    monthTrack.appendChild(div);
+  });
+
+  const rSpacer = document.createElement('div');
+  rSpacer.className = 'month-spacer'; rSpacer.id = 'mSpacerR';
+  monthTrack.appendChild(rSpacer);
+
+  requestAnimationFrame(() => {
+    initSpacersAndScroll();
+    markCenter();
+  });
+}
+
+function initSpacersAndScroll() {
+  const cw = monthTrack.offsetWidth;
+  const half = cw / 2;
+  document.getElementById('mSpacerL').style.width = half + 'px';
+  document.getElementById('mSpacerR').style.width = half + 'px';
+
+  const active = monthTrack.querySelector('.month-item.center');
+  if (active) {
+    monthTrack.scrollLeft = active.offsetLeft + active.offsetWidth / 2 - half;
+  }
+}
+
+function markCenter() {
+  const cw   = monthTrack.offsetWidth;
+  const mid  = monthTrack.scrollLeft + cw / 2;
+  let closest = null, minDist = Infinity;
+
+  monthTrack.querySelectorAll('.month-item').forEach(el => {
+    const ec = el.offsetLeft + el.offsetWidth / 2;
+    const d  = Math.abs(ec - mid);
+    if (d < minDist) { minDist = d; closest = el; }
+  });
+
+  monthTrack.querySelectorAll('.month-item').forEach(el => {
+    const active = el === closest;
+    el.classList.toggle('center', active);
+    const idx = +el.dataset.idx;
+    // Add/remove day badge for today's month
+    if (active && idx === TODAY_M && !el.querySelector('.month-day-badge')) {
+      el.innerHTML = `${MONTHS[idx]}<span class="month-day-badge">${TODAY_D}</span>`;
+    } else if (!active && el.querySelector('.month-day-badge')) {
+      el.textContent = MONTHS[idx];
+    }
+  });
+}
+
+function getCenterMonthIdx() {
+  const cw  = monthTrack.offsetWidth;
+  const mid = monthTrack.scrollLeft + cw / 2;
+  let closest = null, minDist = Infinity;
+  monthTrack.querySelectorAll('.month-item').forEach(el => {
+    const ec = el.offsetLeft + el.offsetWidth / 2;
+    const d  = Math.abs(ec - mid);
+    if (d < minDist) { minDist = d; closest = el; }
+  });
+  return closest ? +closest.dataset.idx : selectedMonth;
+}
+
+function scrollToMonth(m) {
+  const item = monthTrack.querySelector(`.month-item[data-idx="${m}"]`);
+  if (!item) return;
+  const cw = monthTrack.offsetWidth;
+  monthTrack.scrollTo({ left: item.offsetLeft + item.offsetWidth / 2 - cw / 2, behavior: 'smooth' });
+  requestAnimationFrame(markCenter);
+}
+
+// Mouse drag support
+let dragDown = false, dragX0 = 0, dragScroll0 = 0;
+monthTrack.addEventListener('mousedown', e => {
+  dragDown = true; dragX0 = e.pageX; dragScroll0 = monthTrack.scrollLeft;
+  monthTrack.classList.add('dragging'); e.preventDefault();
+});
+window.addEventListener('mouseup', () => {
+  if (!dragDown) return;
+  dragDown = false; monthTrack.classList.remove('dragging');
+  // Snap to nearest
+  const cw = monthTrack.offsetWidth, mid = monthTrack.scrollLeft + cw / 2;
+  let closest = null, minDist = Infinity;
+  monthTrack.querySelectorAll('.month-item').forEach(el => {
+    const ec = el.offsetLeft + el.offsetWidth / 2;
+    const d  = Math.abs(ec - mid);
+    if (d < minDist) { minDist = d; closest = el; }
+  });
+  if (closest) {
+    monthTrack.scrollTo({ left: closest.offsetLeft + closest.offsetWidth / 2 - cw / 2, behavior: 'smooth' });
+  }
+});
+window.addEventListener('mousemove', e => {
+  if (!dragDown) return;
+  monthTrack.scrollLeft = dragScroll0 - (e.pageX - dragX0);
+});
+
+monthTrack.addEventListener('scroll', () => {
+  markCenter();
+  clearTimeout(debounceTimer);
+  document.getElementById('showsList').classList.add('fading');
+  debounceTimer = setTimeout(() => {
+    const m = getCenterMonthIdx();
+    if (m !== selectedMonth) {
+      selectedMonth = m;
+      activeRangeStart = null;
+      activeRangeEnd   = null;
+    }
+    renderActiveFilters();
+    renderShows();
+    document.getElementById('showsList').classList.remove('fading');
+  }, 800);
+}, { passive: true });
+
+// ─── Shows ────────────────────────────────────────────────────────────────────
+function getFilteredShows(month, rStart, rEnd, types, shows, actors) {
+  let s = ALL_SHOWS.filter(x => x.month === month);
+  if (rStart && rEnd)  s = s.filter(x => x.day >= rStart && x.day <= rEnd);
+  else if (rStart)     s = s.filter(x => x.day === rStart);
+  if (types.size)  s = s.filter(x => types.has(x.tag));
+  if (shows.size)  s = s.filter(x => shows.has(x.title));
+  if (actors.size) s = s.filter(x => x.actors.some(a => actors.has(a)));
+  return s;
+}
+
+function renderShows() {
+  const list  = document.getElementById('showsList');
+  const shows = getFilteredShows(selectedMonth, activeRangeStart, activeRangeEnd, activeTypes, activeShows, activeActors);
+
+  if (!shows.length) {
+    list.innerHTML = `<div class="no-results"><strong>לא נמצאו הצגות</strong>נסה לשנות את הפילטרים הנבחרים</div>`;
+    return;
+  }
+
+  list.innerHTML = shows.map(s => `
+    <div class="show-card">
+      <!-- RTL flex: first child → RIGHT side → poster sits on the right -->
+      <div class="show-poster" style="background:${POSTER_BG[s.tag] || '#222'}"></div>
+      <div class="show-info">
+        <div class="show-top-row">
+          <!-- RTL flex: first child → RIGHT → date on right, tag on left -->
+          <div class="show-date">${getDowHe(s.month, s.day)} | ${formatDate(s.month, s.day)}</div>
+          <div class="category-tag" style="background:${TAG_COLORS[s.tag] || '#333'}">${s.tag}</div>
+        </div>
+        <div class="show-title">${s.title}</div>
+        <div class="show-desc">${s.sub}</div>
+        <div class="show-link">${LINK_ARROW} פרטים וכרטיסים</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── Active filters strip ─────────────────────────────────────────────────────
+function formatDateBadge(month, day) {
+  const yy = String(CAL_YEAR).slice(2);
+  return `${String(day).padStart(2,'0')}.${String(month+1).padStart(2,'0')}.${yy}`;
+}
+
+function renderActiveFilters() {
+  const strip = document.getElementById('activeFilters');
+  const chips = [];
+
+  if (activeRangeStart && activeRangeEnd) {
+    chips.push({ label:`${formatDateBadge(activeCalMonth,activeRangeStart)} – ${formatDateBadge(activeCalMonth,activeRangeEnd)}`, key:'day', val:null });
+  } else if (activeRangeStart) {
+    chips.push({ label:`${activeRangeStart} ב${MONTHS[activeCalMonth]}`, key:'day', val:null });
+  }
+  activeTypes.forEach(t  => chips.push({ label:t, key:'type',  val:t }));
+  activeShows.forEach(s  => chips.push({ label:s, key:'show',  val:s }));
+  activeActors.forEach(a => chips.push({ label:a, key:'actor', val:a }));
+  activeLangs.forEach(l  => chips.push({ label:l, key:'lang',  val:l }));
+
+  if (!chips.length) { strip.style.display = 'none'; return; }
+  strip.style.display = 'flex';
+  strip.innerHTML = chips.map(c => `
+    <div class="active-chip" data-key="${c.key}" data-val="${encodeURIComponent(c.val||'')}">
+      <span>${c.label}</span><span class="chip-x">×</span>
+    </div>
+  `).join('');
+
+  strip.querySelectorAll('.active-chip').forEach(el => {
+    el.addEventListener('click', () => {
+      const key = el.dataset.key;
+      const val = decodeURIComponent(el.dataset.val);
+      if (key === 'day')   { activeRangeStart = null; activeRangeEnd = null; }
+      if (key === 'type')  activeTypes.delete(val);
+      if (key === 'show')  activeShows.delete(val);
+      if (key === 'actor') activeActors.delete(val);
+      if (key === 'lang')  activeLangs.delete(val);
+      renderActiveFilters(); updateBadge(); renderShows();
+    });
+  });
+}
+
+function updateBadge() {
+  const n = (activeRangeStart ? 1 : 0) + activeTypes.size + activeShows.size + activeActors.size + activeLangs.size;
+  const b = document.getElementById('filterBadge');
+  b.textContent = n; b.style.display = n ? 'flex' : 'none';
+}
+
+// ─── Drawer main-panel badges ─────────────────────────────────────────────────
+function updateMainDrawerBadges() {
+  // Dates badge
+  const bd = document.getElementById('badgeDates');
+  if (draftRangeStart && draftRangeEnd) {
+    bd.className = 'badge-pill';
+    bd.textContent = `${formatDateBadge(draftCalMonth,draftRangeStart)} – ${formatDateBadge(draftCalMonth,draftRangeEnd)}`;
+  } else if (draftRangeStart) {
+    bd.className = 'badge-pill';
+    bd.textContent = formatDateBadge(draftCalMonth, draftRangeStart);
+  } else { bd.className = ''; bd.textContent = ''; }
+
+  // Shows badge
+  const bs = document.getElementById('badgeShows');
+  if (draftShows.size) { bs.className = 'badge-count'; bs.textContent = draftShows.size; }
+  else { bs.className = ''; bs.textContent = ''; }
+
+  // Actors badge
+  const ba = document.getElementById('badgeActors');
+  if (draftActors.size) { ba.className = 'badge-count'; ba.textContent = draftActors.size; }
+  else { ba.className = ''; ba.textContent = ''; }
+}
+
+function updateApplyBtn() {
+  const count = getFilteredShows(draftCalMonth, draftRangeStart, draftRangeEnd, draftTypes, draftShows, draftActors).length;
+  const btn = document.getElementById('applyBtn');
+  btn.textContent = count ? `סינון (${count})` : 'סינון';
+}
+
+// ─── Big calendar (date picker panel) ────────────────────────────────────────
+function buildBigCalendar() {
+  const month = draftCalMonth, year = CAL_YEAR;
+  document.getElementById('bigCalMonthName').textContent = MONTHS[month];
+  document.getElementById('bigCalYearBadge').textContent = String(year).slice(2);
+
+  // Update range label values
+  document.getElementById('rangeFromVal').textContent = draftRangeStart ? formatDateBadge(month, draftRangeStart) : '';
+  document.getElementById('rangeToVal').textContent   = draftRangeEnd   ? formatDateBadge(month, draftRangeEnd)   : '';
+
+  const daysWithShows = new Set(ALL_SHOWS.filter(s => s.month === month).map(s => s.day));
+  const firstDow    = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const prevDays    = new Date(year, month, 0).getDate();
+  const totalCells  = Math.ceil((firstDow + daysInMonth) / 7) * 7;
+
+  let cells = '';
+  for (let i = 0; i < totalCells; i++) {
+    if (i < firstDow) {
+      cells += `<div class="cal-day other-month"><span class="cal-num">${prevDays - firstDow + i + 1}</span></div>`;
+    } else {
+      const d = i - firstDow + 1;
+      if (d > daysInMonth) {
+        cells += `<div class="cal-day other-month"><span class="cal-num">${d - daysInMonth}</span></div>`;
+      } else {
+        const has       = daysWithShows.has(d);
+        const isStart   = draftRangeStart === d;
+        const isEnd     = draftRangeEnd != null && draftRangeEnd === d;
+        const isInRange = draftRangeStart != null && draftRangeEnd != null && d > draftRangeStart && d < draftRangeEnd;
+        const isToday   = d === TODAY_D && month === TODAY_M;
+        const cls = ['cal-day', has?'has-shows':'dimmed',
+          isStart?'range-start':'', isEnd?'range-end':'',
+          isInRange?'in-range':'', isToday?'today':''].filter(Boolean).join(' ');
+        cells += `<div class="${cls}" data-day="${d}">
+          <span class="cal-num">${d}</span>${has ? '<div class="cal-dot"></div>' : ''}
+        </div>`;
+      }
+    }
+  }
+
+  const hint = (draftRangeStart && !draftRangeEnd) ? '<div class="cal-range-hint">בחר תאריך סיום</div>' : '';
+  document.getElementById('bigCalGrid').innerHTML = `
+    <div class="cal-grid">
+      ${DOW_HE.map(d => `<div class="cal-dow">${d}</div>`).join('')}
+      ${cells}
+    </div>${hint}`;
+
+  document.getElementById('bigCalGrid').querySelectorAll('.cal-day:not(.other-month)').forEach(el => {
+    el.addEventListener('click', () => {
+      const d = +el.dataset.day;
+      if (!draftRangeStart || (draftRangeStart && draftRangeEnd)) {
+        draftRangeStart = d; draftRangeEnd = null;
+      } else if (d === draftRangeStart) {
+        draftRangeStart = null; draftRangeEnd = null;
+      } else if (d < draftRangeStart) {
+        draftRangeStart = d; draftRangeEnd = null;
+      } else {
+        draftRangeEnd = d;
+      }
+      buildBigCalendar(); updateMainDrawerBadges();
+    });
+  });
+}
+
+document.getElementById('bigCalPrev').addEventListener('click', () => {
+  draftCalMonth = draftCalMonth === 0 ? 11 : draftCalMonth - 1;
+  draftRangeStart = null; draftRangeEnd = null;
+  buildBigCalendar(); updateMainDrawerBadges();
+});
+document.getElementById('bigCalNext').addEventListener('click', () => {
+  draftCalMonth = draftCalMonth === 11 ? 0 : draftCalMonth + 1;
+  draftRangeStart = null; draftRangeEnd = null;
+  buildBigCalendar(); updateMainDrawerBadges();
+});
+document.getElementById('clearDatesBtn').addEventListener('click', () => {
+  draftRangeStart = null; draftRangeEnd = null;
+  buildBigCalendar(); updateMainDrawerBadges();
+});
+document.getElementById('applyDatesBtn').addEventListener('click', () => goBackToMain());
+
+// ─── Type chips ───────────────────────────────────────────────────────────────
+function buildTypeChips() {
+  const group = document.getElementById('typeChips');
+  const allSelected = draftTypes.size === 0;
+  const allChip = `<button class="type-chip${allSelected?' selected':''}" data-type="__all__">הכל</button>`;
+  const typeHtml = SHOW_TYPES.map(t =>
+    `<button class="type-chip${draftTypes.has(t)?' selected':''}" data-type="${t}">${t}</button>`
+  ).join('');
+  group.innerHTML = allChip + typeHtml;
+  group.querySelectorAll('.type-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const t = btn.dataset.type;
+      if (t === '__all__') draftTypes.clear();
+      else { draftTypes.has(t) ? draftTypes.delete(t) : draftTypes.add(t); }
+      buildTypeChips(); updateApplyBtn();
+    });
+  });
+}
+
+// ─── Language inline ──────────────────────────────────────────────────────────
+function buildLangInline() {
+  const row = document.getElementById('langList');
+  row.innerHTML = LANGS.map(l => `
+    <div class="lang-inline-item${draftLangs.has(l)?' selected':''}" data-lang="${l}">
+      <span class="lang-check-icon">✓</span>
+      <span>${l}</span>
+    </div>
+  `).join('');
+  row.querySelectorAll('.lang-inline-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const l = item.dataset.lang;
+      draftLangs.has(l) ? draftLangs.delete(l) : draftLangs.add(l);
+      buildLangInline();
+    });
+  });
+}
+
+// ─── Shows panel ──────────────────────────────────────────────────────────────
+function buildShowsPanel(query = '') {
+  // Selected chips
+  const strip = document.getElementById('showsChipsStrip');
+  strip.innerHTML = [...draftShows].map(s => `
+    <div class="selected-chip" data-show="${encodeURIComponent(s)}">
+      <span>${s}</span><span class="selected-chip-x">×</span>
+    </div>`).join('');
+  strip.querySelectorAll('.selected-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      draftShows.delete(decodeURIComponent(chip.dataset.show));
+      buildShowsPanel(document.getElementById('showsSearch').value);
+      updateMainDrawerBadges();
+    });
+  });
+
+  // Checklist
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? ALL_SHOW_TITLES.filter(t => t.includes(q))
+    : ALL_SHOW_TITLES;
+
+  document.getElementById('showsChecklist').innerHTML = filtered.map(t => `
+    <div class="checklist-row${draftShows.has(t)?' selected':''}" data-title="${encodeURIComponent(t)}">
+      <span class="checklist-label">${t}</span>
+      <span class="checklist-check">✓</span>
+    </div>`).join('');
+
+  document.getElementById('showsChecklist').querySelectorAll('.checklist-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const t = decodeURIComponent(row.dataset.title);
+      draftShows.has(t) ? draftShows.delete(t) : draftShows.add(t);
+      buildShowsPanel(document.getElementById('showsSearch').value);
+      updateMainDrawerBadges();
+    });
+  });
+}
+
+document.getElementById('showsSearch').addEventListener('input', e => buildShowsPanel(e.target.value));
+document.getElementById('applyShowsBtn').addEventListener('click', () => goBackToMain());
+
+// ─── Actors panel ─────────────────────────────────────────────────────────────
+function buildActorsPanel(query = '') {
+  const strip = document.getElementById('actorsChipsStrip');
+  strip.innerHTML = [...draftActors].map(a => `
+    <div class="selected-chip" data-actor="${encodeURIComponent(a)}">
+      <span>${a}</span><span class="selected-chip-x">×</span>
+    </div>`).join('');
+  strip.querySelectorAll('.selected-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      draftActors.delete(decodeURIComponent(chip.dataset.actor));
+      buildActorsPanel(document.getElementById('actorsSearch').value);
+      updateMainDrawerBadges();
+    });
+  });
+
+  const q = query.trim();
+  const filtered = q
+    ? ACTORS.filter(a => a.includes(q))
+    : ACTORS;
+
+  document.getElementById('actorsChecklist').innerHTML = filtered.map(a => `
+    <div class="checklist-row${draftActors.has(a)?' selected':''}" data-actor="${encodeURIComponent(a)}">
+      <span class="checklist-label">${a}</span>
+      <span class="checklist-check">✓</span>
+    </div>`).join('');
+
+  document.getElementById('actorsChecklist').querySelectorAll('.checklist-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const a = decodeURIComponent(row.dataset.actor);
+      draftActors.has(a) ? draftActors.delete(a) : draftActors.add(a);
+      buildActorsPanel(document.getElementById('actorsSearch').value);
+      updateMainDrawerBadges();
+    });
+  });
+}
+
+document.getElementById('actorsSearch').addEventListener('input', e => buildActorsPanel(e.target.value));
+document.getElementById('applyActorsBtn').addEventListener('click', () => goBackToMain());
+
+// ─── Panel navigation ─────────────────────────────────────────────────────────
+function openPanel(panelId) {
+  document.getElementById('drawerMain').classList.add('panel-out');
+  document.getElementById(panelId).classList.add('panel-in');
+}
+function goBackToMain() {
+  document.getElementById('drawerMain').classList.remove('panel-out');
+  ['panelDates','panelShows','panelActors'].forEach(id =>
+    document.getElementById(id).classList.remove('panel-in')
+  );
+}
+
+document.querySelectorAll('.filter-row[data-panel]').forEach(row => {
+  row.addEventListener('click', () => {
+    const panelId = row.dataset.panel;
+    if (panelId === 'panelDates')  buildBigCalendar();
+    if (panelId === 'panelShows')  { document.getElementById('showsSearch').value = ''; buildShowsPanel(); }
+    if (panelId === 'panelActors') { document.getElementById('actorsSearch').value = ''; buildActorsPanel(); }
+    openPanel(panelId);
+  });
+});
+
+document.getElementById('backFromDates').addEventListener('click',  goBackToMain);
+document.getElementById('backFromShows').addEventListener('click',  goBackToMain);
+document.getElementById('backFromActors').addEventListener('click', goBackToMain);
+
+// ─── Drawer open / close ──────────────────────────────────────────────────────
+const drawer    = document.getElementById('drawer');
+const overlay   = document.getElementById('overlay');
+const filterFab = document.getElementById('filterFab');
+
+function openDrawer() {
+  // Copy active → draft
+  draftRangeStart = activeRangeStart;
+  draftRangeEnd   = activeRangeEnd;
+  draftCalMonth   = activeCalMonth || selectedMonth;
+  draftTypes      = new Set(activeTypes);
+  draftShows      = new Set(activeShows);
+  draftActors     = new Set(activeActors);
+  draftLangs      = new Set(activeLangs);
+  // Render inline sections
+  buildTypeChips();
+  buildLangInline();
+  updateMainDrawerBadges();
+  updateApplyBtn();
+  // Make sure we start on main panel
+  goBackToMain();
+  drawer.classList.add('open');
+  overlay.classList.add('visible');
+}
+
+function closeDrawer() {
+  drawer.classList.remove('open');
+  overlay.classList.remove('visible');
+}
+
+filterFab.addEventListener('click', openDrawer);
+overlay.addEventListener('click',   closeDrawer);
+
+document.getElementById('applyBtn').addEventListener('click', () => {
+  activeCalMonth   = draftCalMonth;
+  activeRangeStart = draftRangeStart;
+  activeRangeEnd   = draftRangeEnd;
+  activeTypes      = new Set(draftTypes);
+  activeShows      = new Set(draftShows);
+  activeActors     = new Set(draftActors);
+  activeLangs      = new Set(draftLangs);
+  if (draftCalMonth !== selectedMonth) {
+    selectedMonth = draftCalMonth;
+    scrollToMonth(selectedMonth);
+  }
+  renderActiveFilters(); updateBadge(); renderShows();
+  closeDrawer();
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  draftRangeStart = null; draftRangeEnd = null;
+  draftCalMonth   = selectedMonth;
+  draftTypes  = new Set(); draftShows  = new Set();
+  draftActors = new Set(); draftLangs  = new Set();
+  buildTypeChips(); buildLangInline();
+  updateMainDrawerBadges(); updateApplyBtn();
+});
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+buildMonthTrack();
+renderShows();
+</script>
+</body>
+</html>
