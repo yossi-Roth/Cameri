@@ -486,12 +486,7 @@ body {
     <div class="month-section">
       <div class="month-track" id="monthTrack"></div>
     </div>
-    <div class="day-divider sticky-day-bar" id="stickyDayBar">
-      <div class="day-divider-line"></div>
-      <div class="day-divider-text" id="stickyDayText"></div>
-      <div class="day-divider-line"></div>
-    </div>
-    <!-- Toolbar: sticky inside glass-header, below months — collapses with header -->
+    <!-- Toolbar: between month carousel and sticky day bar -->
     <div class="toolbar-row" id="toolbarRow">
       <button class="toolbar-btn" id="btnSinun">
         <span>סינון</span>
@@ -514,6 +509,11 @@ body {
           <path d="M1.5 1.5L13.5 13.5M13.5 1.5L1.5 13.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
         </svg>
       </button>
+    </div>
+    <div class="day-divider sticky-day-bar" id="stickyDayBar">
+      <div class="day-divider-line"></div>
+      <div class="day-divider-text" id="stickyDayText"></div>
+      <div class="day-divider-line"></div>
     </div>
   </div>
 
@@ -1315,8 +1315,8 @@ function updateCarouselFromScroll() {
 function updateBadge() {
   const n = activeTypes.size + activeShows.size + activeActors.size + activeLangs.size;
   document.getElementById('filterBadge').style.display = n ? 'block' : 'none';
-  document.getElementById('dateBadge').style.display = activeRangeStart ? 'block' : 'none';
-  document.getElementById('btnReset').style.display = (activeRangeStart || n > 0) ? 'flex' : 'none';
+  document.getElementById('dateBadge').style.display = 'none';
+  document.getElementById('btnReset').style.display = n > 0 ? 'flex' : 'none';
 }
 
 function buildValuesSummary(items, maxPx) {
@@ -1352,7 +1352,7 @@ function updateMainDrawerBadges() {
   setFilterRow('rowActors', 'valActors', [...draftActors]);
   setFilterRow('rowTypes',  'valTypes',  [...draftTypes]);
   setFilterRow('rowLangs',  'valLangs',  [...draftLangs]);
-  const hasFilters = draftTypes.size || draftShows.size || draftActors.size || draftLangs.size || draftRangeStart;
+  const hasFilters = draftTypes.size || draftShows.size || draftActors.size || draftLangs.size;
   document.getElementById('clearBtn').style.visibility = hasFilters ? 'visible' : 'hidden';
 }
 
@@ -1367,7 +1367,7 @@ function openDrawer(mode) {
   const drawer = document.getElementById('drawer');
   const xBtn   = document.getElementById('drawerXBtn');
   // sync drafts from active
-  draftCalMonth = activeCalMonth; draftRangeStart = activeRangeStart; draftRangeEnd = activeRangeEnd;
+  draftCalMonth = activeCalMonth;
   draftTypes  = new Set(activeTypes);  draftShows  = new Set(activeShows);
   draftActors = new Set(activeActors); draftLangs  = new Set(activeLangs);
 
@@ -1403,22 +1403,20 @@ document.getElementById('btnDate').addEventListener('click', () => openDrawer('d
 document.getElementById('overlay').addEventListener('click', closeDrawer);
 document.getElementById('drawerXBtn').addEventListener('click', closeDrawer);
 document.getElementById('btnReset').addEventListener('click', () => {
-  activeRangeStart = null; activeRangeEnd = null;
   activeTypes.clear(); activeShows.clear(); activeActors.clear(); activeLangs.clear();
   updateBadge(); renderShows();
 });
 
 document.getElementById('clearBtn').addEventListener('click', () => {
   draftTypes.clear(); draftShows.clear(); draftActors.clear(); draftLangs.clear();
-  draftRangeStart = null; draftRangeEnd = null;
   buildTypeChips(); buildLangInline(); buildShowsPanel(); buildActorsPanel();
-  updateMainDrawerBadges(); updateApplyBtn(); buildBigCalendar();
+  updateMainDrawerBadges(); updateApplyBtn();
 });
 
 document.getElementById('applyBtn').addEventListener('click', () => {
   activeTypes  = new Set(draftTypes);  activeShows  = new Set(draftShows);
   activeActors = new Set(draftActors); activeLangs  = new Set(draftLangs);
-  activeCalMonth = draftCalMonth; activeRangeStart = draftRangeStart; activeRangeEnd = draftRangeEnd;
+  activeCalMonth = draftCalMonth;
   updateBadge(); renderShows(); closeDrawer();
 });
 
@@ -1443,8 +1441,8 @@ function buildBigCalendar() {
       if (d > daysInMonth) {
         cells += `<div class="cal-day other-month"><span class="cal-num">${d - daysInMonth}</span></div>`;
       } else {
-        const has = daysWithShows.has(d), past = isPast(month, d), today = isToday(month, d), selected = draftRangeStart === d;
-        const cls = ['cal-day', past ? 'past' : (has ? 'has-shows' : ''), today ? 'today' : '', selected ? 'selected' : ''].filter(Boolean).join(' ');
+        const has = daysWithShows.has(d), past = isPast(month, d), today = isToday(month, d);
+        const cls = ['cal-day', past ? 'past' : (has ? 'has-shows' : ''), today ? 'today' : ''].filter(Boolean).join(' ');
         cells += `<div class="${cls}" data-day="${d}"><span class="cal-num">${d}</span>${today ? '<div class="cal-dot"></div>' : ''}</div>`;
       }
     }
@@ -1453,19 +1451,14 @@ function buildBigCalendar() {
   document.getElementById('bigCalGrid').querySelectorAll('.cal-day:not(.other-month):not(.past)').forEach(el => {
     el.addEventListener('click', () => {
       const d = +el.dataset.day;
-      if (drawerMode === 'date') {
-        draftRangeStart = d; closeDrawer();
-        requestAnimationFrame(() => scrollToDay(draftCalMonth, d));
-      } else {
-        draftRangeStart = (draftRangeStart === d) ? null : d;
-        draftRangeEnd = null; buildBigCalendar(); updateMainDrawerBadges();
-      }
+      closeDrawer();
+      requestAnimationFrame(() => scrollToDay(draftCalMonth, d));
     });
   });
 }
 
-document.getElementById('bigCalPrev').addEventListener('click', () => { draftCalMonth = draftCalMonth===0?11:draftCalMonth-1; draftRangeStart=null; buildBigCalendar(); updateMainDrawerBadges(); });
-document.getElementById('bigCalNext').addEventListener('click', () => { draftCalMonth = draftCalMonth===11?0:draftCalMonth+1; draftRangeStart=null; buildBigCalendar(); updateMainDrawerBadges(); });
+document.getElementById('bigCalPrev').addEventListener('click', () => { draftCalMonth = draftCalMonth===0?11:draftCalMonth-1; buildBigCalendar(); updateMainDrawerBadges(); });
+document.getElementById('bigCalNext').addEventListener('click', () => { draftCalMonth = draftCalMonth===11?0:draftCalMonth+1; buildBigCalendar(); updateMainDrawerBadges(); });
 
 document.getElementById('applyDatesBtn').addEventListener('click', () => {
   if (drawerMode === 'date') { closeDrawer(); if (draftRangeStart) requestAnimationFrame(() => scrollToDay(draftCalMonth, draftRangeStart)); }
