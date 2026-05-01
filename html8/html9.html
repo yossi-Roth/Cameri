@@ -1506,6 +1506,35 @@ function scrollToMonthInList(m) {
   if (group) fastScrollTo(Math.max(0, group.offsetTop - getGlassH()), scroller);
 }
 
+function getVisibleFeedDate() {
+  const scroller = document.getElementById('contentScroller');
+  const list     = document.getElementById('showsList');
+  const scrollTop = scroller.scrollTop + getGlassH() + 80;
+  let visible = { month: selectedMonth, day: 1 };
+  for (const g of list.querySelectorAll('.day-group')) {
+    if (g.offsetTop <= scrollTop) visible = { month: +g.dataset.month, day: +g.dataset.day };
+    else break;
+  }
+  return visible;
+}
+
+function dayOfYear(month, day) {
+  return Math.floor((new Date(CAL_YEAR, month, day) - new Date(CAL_YEAR, 0, 1)) / 86400000);
+}
+
+function getClosestFilteredShowTarget(types, shows, actors, langs, fromDate) {
+  const filtered = getFilteredShows(types, shows, actors, langs);
+  if (!filtered.length) return null;
+
+  const from = dayOfYear(fromDate.month, fromDate.day);
+  let best = filtered[0], bestDist = Infinity;
+  filtered.forEach(show => {
+    const dist = Math.abs(dayOfYear(show.month, show.day) - from);
+    if (dist < bestDist) { best = show; bestDist = dist; }
+  });
+  return { m: best.month, d: best.day };
+}
+
 let _carouselSyncLock = false;
 function updateCarouselFromScroll(force = false) {
   if (_carouselSyncLock && !force) return;
@@ -1689,10 +1718,12 @@ document.getElementById('clearLangsPanelBtn').addEventListener('click', () => {
 });
 
 document.getElementById('applyBtn').addEventListener('click', () => {
+  const fromDate = getVisibleFeedDate();
+  const scrollTarget = getClosestFilteredShowTarget(draftTypes, draftShows, draftActors, draftLangs, fromDate);
   activeTypes  = new Set(draftTypes);  activeShows  = new Set(draftShows);
   activeActors = new Set(draftActors); activeLangs  = new Set(draftLangs);
   activeCalMonth = draftCalMonth;
-  updateBadge(); renderShows(); closeDrawer();
+  updateBadge(); renderShows(scrollTarget); closeDrawer();
 });
 
 // ─── Big calendar ─────────────────────────────────────────────────────────────
