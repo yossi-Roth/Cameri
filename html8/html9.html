@@ -148,7 +148,7 @@ body {
   background: transparent;
 }
 .toolbar-btn {
-  flex: 1; height: 52px; border-radius: 100px;
+  flex: 1; height: 44px; border-radius: 100px;
   background: #454545; border: none; color: #fff;
   display: flex; align-items: center; justify-content: center; gap: 8px;
   font-family: 'FtOrvany', sans-serif; font-weight: 900; font-stretch: semi-condensed;
@@ -158,12 +158,23 @@ body {
 }
 .toolbar-btn:active { background: #5a5a5a; }
 .toolbar-badge {
-  position: absolute; top: -7px; right: 10px;
+  position: absolute; top: -7px; left: 10px;
   width: 18px; height: 18px; border-radius: 50%;
   background: var(--red); display: none;
   pointer-events: none; border: 2.5px solid #454545;
 }
-.toolbar-reset { flex: none; width: 52px; background: #454545; }
+/* Keep the filter indicator physically on the left edge in RTL. */
+#btnSinun .toolbar-badge {
+  left: 10px;
+  right: auto;
+}
+.toolbar-reset {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  background: #454545;
+}
+.toolbar-reset svg { width: 18px; height: 18px; }
 
 /* ── Shows list ── */
 .content-scroller {
@@ -178,7 +189,7 @@ body {
 .shows-list.fading { opacity: 0.12; pointer-events: none; }
 
 /* ── Floating sticky day bar — lives inside .glass-header, inherits blur ── */
-.sticky-day-bar { pointer-events: none; display: none; }
+.sticky-day-bar { pointer-events: none; visibility: hidden; }
 .day-divider.sticky-day-bar { background: transparent; }
 .sticky-day-bar .day-divider-line { background: rgba(255,255,255,0.18); }
 
@@ -204,11 +215,13 @@ body {
 /* ── Show card — vertical layout ── */
 .show-group {
   display: flex; flex-direction: column;
-  padding: 20px 26px 25px;
+  padding: 16px 26px 25px;
   gap: 12px;
   position: relative;
   cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.14s;
 }
+.day-group .show-group { margin-bottom: 18px; }
+.day-group .show-group:last-child { margin-bottom: 0; }
 .show-group:active { background: rgba(255,255,255,0.025); }
 
 /* Category tag — absolute over the poster top-right */
@@ -232,9 +245,17 @@ body {
   padding: 0;
 }
 .show-meta {
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center; gap: 6px; height: 22px;
   font-family: 'FtOrvany', sans-serif; font-weight: 400; font-stretch: semi-condensed;
   font-size: 18px; color: #fff; letter-spacing: 0.36px; white-space: nowrap;
+}
+.show-meta span:first-child {
+  font-weight: 600;
+  font-size: 20px;
+}
+.show-meta span:last-child {
+  font-weight: 600;
+  font-size: 20px;
 }
 .show-meta-sep { opacity: 0.45; }
 .show-title {
@@ -317,7 +338,7 @@ body {
   padding: 4px 24px 18px; flex-shrink: 0;
 }
 .drawer-title { font-family: 'FtOrvany', sans-serif; font-weight: 400; font-stretch: semi-condensed; font-size: 16px; color: #1a1a1d; }
-.drawer-clear { font-family: 'FtOrvany', sans-serif; font-weight: 400; font-stretch: semi-condensed; font-size: 16px; color: rgba(42,42,44,0.4); background: none; border: none; cursor: pointer; padding: 4px 0; -webkit-tap-highlight-color: transparent; }
+.drawer-clear { font-family: 'FtOrvany', sans-serif; font-weight: 400; font-stretch: semi-condensed; font-size: 16px; color: #2a2a2c; background: none; border: none; cursor: pointer; padding: 4px 0; -webkit-tap-highlight-color: transparent; }
 .drawer-clear:active { color: #ed2527; }
 .drawer-body { overflow-y: auto; flex: 1; scrollbar-width: none; }
 .drawer-body::-webkit-scrollbar { display: none; }
@@ -327,14 +348,14 @@ body {
   min-height: 80px; padding: 0 24px;
   cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.1s;
 }
-.filter-row::after { content: ''; position: absolute; bottom: 0; left: 24px; right: 24px; height: 1px; background: rgba(42,42,44,0.1); }
+.filter-row::after { content: ''; position: absolute; bottom: 0; left: 24px; right: 24px; height: 1px; background: rgba(42,42,44,0.2); }
 .filter-row:active { background: rgba(42,42,44,0.04); }
 .filter-row-content { display: flex; flex-direction: column; justify-content: center; gap: 4px; flex: 1; min-width: 0; }
 .filter-row-label { font-family: 'FtOrvany', sans-serif; font-weight: 900; font-stretch: semi-condensed; font-size: 22px; color: #1a1a1d; transition: font-size 0.18s, color 0.18s, font-weight 0.18s; }
-.filter-row.active .filter-row-label { font-size: 13px; font-weight: 400; color: rgba(42,42,44,0.5); }
+.filter-row.active .filter-row-label { font-size: 14px; font-weight: 400; color: rgba(42,42,44,0.56); }
 .filter-row-values { display: none; overflow: hidden; white-space: nowrap; font-family: 'FtOrvany', sans-serif; font-weight: 700; font-stretch: semi-condensed; font-size: 17px; color: #1a1a1d; }
 .filter-row.active .filter-row-values { display: block; }
-.filter-row-chevron { font-size: 22px; color: rgba(42,42,44,0.38); flex-shrink: 0; line-height: 1; margin-right: 14px; display: inline-block; direction: ltr; unicode-bidi: isolate; }
+.filter-row-chevron { font-size: 22px; color: rgba(42,42,44,0.56); flex-shrink: 0; line-height: 1; margin-right: 14px; display: inline-block; direction: ltr; unicode-bidi: isolate; }
 
 .drawer-x-btn {
   position: absolute; left: 50%;
@@ -368,7 +389,7 @@ body {
 }
 .panel-back { font-size: 26px; line-height: 1; color: #1a1a1d; background: none; border: none; cursor: pointer; padding: 0 4px; -webkit-tap-highlight-color: transparent; flex-shrink: 0; unicode-bidi: isolate; direction: ltr; }
 .panel-title { font-family: 'FtOrvany', sans-serif; font-weight: 900; font-stretch: semi-condensed; font-size: 22px; color: #1a1a1d; flex: 1; text-align: center; }
-.panel-clear { font-family: 'FtOrvany', sans-serif; font-weight: 400; font-stretch: semi-condensed; font-size: 15px; color: rgba(42,42,44,0.4); background: none; border: none; cursor: pointer; padding: 4px 0; -webkit-tap-highlight-color: transparent; flex-shrink: 0; }
+.panel-clear { font-family: 'FtOrvany', sans-serif; font-weight: 400; font-stretch: semi-condensed; font-size: 15px; color: #2a2a2c; background: none; border: none; cursor: pointer; padding: 4px 0; -webkit-tap-highlight-color: transparent; flex-shrink: 0; }
 .panel-clear:active { color: #ed2527; }
 .panel-body { flex: 1; overflow-y: auto; scrollbar-width: none; }
 .panel-body::-webkit-scrollbar { display: none; }
@@ -390,11 +411,18 @@ body {
 .selected-chips-strip:empty { display: none; }
 .selected-chip {
   display: inline-flex; align-items: center; gap: 4px;
-  background: #2a2a2c; color: #fff1ed; border-radius: 20px; padding: 5px 10px 5px 12px;
+  background: #2a2a2c; color: #fff1ed; border-radius: 20px;
+  height: 36px; padding: 0 10px 0 12px; padding-left: 14px;
   font-family: 'FtOrvany', sans-serif; font-weight: 400; font-stretch: semi-condensed; font-size: 14px;
   cursor: pointer; flex-shrink: 0; -webkit-tap-highlight-color: transparent;
 }
-.selected-chip-x { font-size: 15px; opacity: 0.6; }
+.selected-chip-x {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; color: #1a1a1d;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 900; line-height: 1;
+  opacity: 1; flex-shrink: 0;
+}
 
 .checklist-row {
   position: relative; display: flex; align-items: center; gap: 10px; padding: 16px 30px;
@@ -590,7 +618,7 @@ body {
         <div id="bigCalGrid"></div>
       </div>
       <div class="panel-footer">
-        <button class="apply-btn-outline" id="applyDatesBtn">בחירה</button>
+        <button class="apply-btn-outline" id="applyDatesBtn">אישור</button>
       </div>
     </div>
 
@@ -598,7 +626,7 @@ body {
       <div class="panel-header">
         <button class="panel-back" id="backFromShows">›</button>
         <span class="panel-title">הצגות ומופעים</span>
-        <span style="width:34px"></span>
+        <button class="panel-clear" id="clearShowsPanelBtn" style="visibility:hidden;pointer-events:none">איפוס</button>
       </div>
       <div class="panel-body">
         <div class="panel-search">
@@ -612,7 +640,7 @@ body {
         <div id="showsChecklist"></div>
       </div>
       <div class="panel-footer">
-        <button class="apply-btn-outline" id="applyShowsBtn">בחירה</button>
+        <button class="apply-btn-outline" id="applyShowsBtn">אישור</button>
       </div>
     </div>
 
@@ -620,7 +648,7 @@ body {
       <div class="panel-header">
         <button class="panel-back" id="backFromActors">›</button>
         <span class="panel-title">שחקנים</span>
-        <span style="width:34px"></span>
+        <button class="panel-clear" id="clearActorsPanelBtn" style="visibility:hidden;pointer-events:none">איפוס</button>
       </div>
       <div class="panel-body">
         <div class="panel-search">
@@ -634,7 +662,7 @@ body {
         <div id="actorsChecklist"></div>
       </div>
       <div class="panel-footer">
-        <button class="apply-btn-outline" id="applyActorsBtn">בחירה</button>
+        <button class="apply-btn-outline" id="applyActorsBtn">אישור</button>
       </div>
     </div>
 
@@ -642,11 +670,11 @@ body {
       <div class="panel-header">
         <button class="panel-back" id="backFromTypes">›</button>
         <span class="panel-title">סוג האירוע</span>
-        <span style="width:34px"></span>
+        <button class="panel-clear" id="clearTypesPanelBtn" style="visibility:hidden;pointer-events:none">איפוס</button>
       </div>
       <div class="panel-body"><div id="typeChecklist"></div></div>
       <div class="panel-footer">
-        <button class="apply-btn-outline" id="applyTypesBtn">בחירה</button>
+        <button class="apply-btn-outline" id="applyTypesBtn">אישור</button>
       </div>
     </div>
 
@@ -654,11 +682,11 @@ body {
       <div class="panel-header">
         <button class="panel-back" id="backFromLangs">›</button>
         <span class="panel-title">שפת כתוביות</span>
-        <span style="width:34px"></span>
+        <button class="panel-clear" id="clearLangsPanelBtn" style="visibility:hidden;pointer-events:none">איפוס</button>
       </div>
       <div class="panel-body"><div id="langChecklist"></div></div>
       <div class="panel-footer">
-        <button class="apply-btn-outline" id="applyLangsBtn">בחירה</button>
+        <button class="apply-btn-outline" id="applyLangsBtn">אישור</button>
       </div>
     </div>
   </div>
@@ -1354,11 +1382,22 @@ function updateMainDrawerBadges() {
   setFilterRow('rowLangs',  'valLangs',  [...draftLangs]);
   const hasFilters = draftTypes.size || draftShows.size || draftActors.size || draftLangs.size;
   document.getElementById('clearBtn').style.visibility = hasFilters ? 'visible' : 'hidden';
+  setPanelClearVisibility('clearShowsPanelBtn', !!draftShows.size);
+  setPanelClearVisibility('clearActorsPanelBtn', !!draftActors.size);
+  setPanelClearVisibility('clearTypesPanelBtn', !!draftTypes.size);
+  setPanelClearVisibility('clearLangsPanelBtn', !!draftLangs.size);
 }
 
 function updateApplyBtn() {
   const n = draftTypes.size + draftShows.size + draftActors.size + draftLangs.size;
   document.getElementById('applyBtn').textContent = n ? `סינון (${n})` : 'סינון';
+}
+
+function setPanelClearVisibility(btnId, hasSelection) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.style.visibility = hasSelection ? 'visible' : 'hidden';
+  btn.style.pointerEvents = hasSelection ? 'auto' : 'none';
 }
 
 // ─── Drawer ───────────────────────────────────────────────────────────────────
@@ -1410,6 +1449,27 @@ document.getElementById('btnReset').addEventListener('click', () => {
 document.getElementById('clearBtn').addEventListener('click', () => {
   draftTypes.clear(); draftShows.clear(); draftActors.clear(); draftLangs.clear();
   buildTypeChips(); buildLangInline(); buildShowsPanel(); buildActorsPanel();
+  updateMainDrawerBadges(); updateApplyBtn();
+});
+
+document.getElementById('clearShowsPanelBtn').addEventListener('click', () => {
+  draftShows.clear();
+  buildShowsPanel(document.getElementById('showsSearch').value);
+  updateMainDrawerBadges(); updateApplyBtn();
+});
+document.getElementById('clearActorsPanelBtn').addEventListener('click', () => {
+  draftActors.clear();
+  buildActorsPanel(document.getElementById('actorsSearch').value);
+  updateMainDrawerBadges(); updateApplyBtn();
+});
+document.getElementById('clearTypesPanelBtn').addEventListener('click', () => {
+  draftTypes.clear();
+  buildTypeChips();
+  updateMainDrawerBadges(); updateApplyBtn();
+});
+document.getElementById('clearLangsPanelBtn').addEventListener('click', () => {
+  draftLangs.clear();
+  buildLangInline();
   updateMainDrawerBadges(); updateApplyBtn();
 });
 
@@ -1673,9 +1733,9 @@ document.querySelectorAll('.filter-row[data-panel]').forEach(row => {
     }
     if (current) {
       barText.innerHTML = current.querySelector('.day-divider-text').innerHTML;
-      bar.style.display = 'flex';
+      bar.style.visibility = 'visible';
     } else {
-      bar.style.display = 'none';
+      bar.style.visibility = 'hidden';
     }
   }
 
@@ -1693,8 +1753,8 @@ document.querySelectorAll('.filter-row[data-panel]').forEach(row => {
       if (st <= 0) {
         clearTimeout(_showTimer); _showTimer = null;
         resetHeader();
-      } else if (delta > 0) {
-        // Scrolling down — cancel any pending reveal, hide if still visible
+      } else if (delta > 0 && st > 40) {
+        // Only hide after 40 px of scroll — prevents shaking from small bounces near the top
         clearTimeout(_showTimer); _showTimer = null;
         hideHeader();
       } else if (delta < 0 && headerHidden && !_showTimer) {
