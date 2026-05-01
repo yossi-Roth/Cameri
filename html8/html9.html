@@ -145,13 +145,16 @@ body {
 
 /* ── Toolbar ── */
 .toolbar-row {
-  flex-shrink: 0; display: flex; gap: 12px; padding: 14px 20px 10px;
+  flex-shrink: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px; padding: 14px 20px 10px;
   /* No position/z-index here — a stacking context would break the parent's
      backdrop-filter in WebKit, making toolbar edges visible while scrolling */
   background: transparent;
 }
 .toolbar-btn {
-  flex: 1; height: 44px; border-radius: 100px;
+  flex: 1 1 0; min-width: 0; box-sizing: border-box;
+  width: 100%;
+  height: 44px; border-radius: 100px;
   background: #454545; border: none; color: #fff;
   display: flex; align-items: center; justify-content: center; gap: 8px;
   font-family: 'FtOrvany', sans-serif; font-weight: 900; font-stretch: semi-condensed;
@@ -171,13 +174,41 @@ body {
   left: 10px;
   right: auto;
 }
-.toolbar-reset {
-  flex: none;
-  width: 44px;
-  height: 44px;
-  background: #454545;
+.filter-capsule {
+  padding-inline: 12px;
 }
-.toolbar-reset svg { width: 18px; height: 18px; }
+.toolbar-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  transition: transform 0.15s ease;
+}
+.filter-capsule .toolbar-content {
+  flex-direction: row-reverse;
+}
+.filter-capsule.has-reset .toolbar-content {
+  transform: translateX(18px);
+}
+.toolbar-reset {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.toolbar-reset:active { background: var(--red-hover); }
+.toolbar-reset svg { width: 14px; height: 14px; }
 
 /* ── Shows list ── */
 .content-scroller {
@@ -232,6 +263,15 @@ body {
 }
 .day-group .show-group { margin-bottom: 18px; }
 .day-group .show-group:last-child { margin-bottom: 0; }
+.day-group .show-group:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  bottom: -9px;
+  height: 1px;
+  background: #454545;
+}
 .show-group:active { background: rgba(255,255,255,0.025); }
 
 /* Category tag — absolute over the poster top-right */
@@ -434,6 +474,12 @@ body {
   cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.15s;
 }
 .apply-btn:active { background: #c8102e; }
+.apply-btn:disabled,
+.apply-btn-outline:disabled {
+  opacity: 0.28;
+  cursor: default;
+  pointer-events: none;
+}
 
 .panel-header {
   display: flex; align-items: center; justify-content: space-between;
@@ -569,26 +615,30 @@ body {
     </div>
     <!-- Toolbar: between month carousel and sticky day bar -->
     <div class="toolbar-row" id="toolbarRow">
-      <button class="toolbar-btn" id="btnSinun">
-        <span>סינון</span>
-        <svg width="18" height="14" viewBox="0 0 20 16" fill="none" style="flex-shrink:0">
-          <path d="M1 2h18M4 8h12M7 14h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
+      <div class="toolbar-btn filter-capsule" id="btnSinun" role="button" tabindex="0">
+        <span class="toolbar-content">
+          <span>סינון</span>
+          <svg width="18" height="14" viewBox="0 0 20 16" fill="none" style="flex-shrink:0">
+            <path d="M1 2h18M4 8h12M7 14h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </span>
         <span class="toolbar-badge" id="filterBadge"></span>
-      </button>
+        <button class="toolbar-reset" id="btnReset" aria-label="נקה סינון">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <path d="M1.5 1.5L13.5 13.5M13.5 1.5L1.5 13.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
       <button class="toolbar-btn" id="btnDate">
-        <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style="flex-shrink:0">
-          <rect x="2" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.7"/>
-          <path d="M2 9h18" stroke="currentColor" stroke-width="1.7"/>
-          <path d="M7 2v4M15 2v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-        </svg>
-        <span>תאריך</span>
+        <span class="toolbar-content">
+          <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style="flex-shrink:0">
+            <rect x="2" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M2 9h18" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M7 2v4M15 2v4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+          <span>תאריך</span>
+        </span>
         <span class="toolbar-badge" id="dateBadge"></span>
-      </button>
-      <button class="toolbar-btn toolbar-reset" id="btnReset" style="display:none" aria-label="נקה סינון">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <path d="M1.5 1.5L13.5 13.5M13.5 1.5L1.5 13.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
-        </svg>
       </button>
     </div>
     <div class="day-divider sticky-day-bar" id="stickyDayBar">
@@ -653,7 +703,7 @@ body {
         </div>
       </div>
       <div class="drawer-footer">
-        <button class="apply-btn" id="applyBtn">סינון</button>
+        <button class="apply-btn" id="applyBtn" disabled>סינון</button>
       </div>
     </div>
 
@@ -694,7 +744,7 @@ body {
         <div id="showsChecklist"></div>
       </div>
       <div class="panel-footer">
-        <button class="apply-btn-outline" id="applyShowsBtn">אישור</button>
+        <button class="apply-btn-outline" id="applyShowsBtn" disabled>אישור</button>
       </div>
     </div>
 
@@ -716,7 +766,7 @@ body {
         <div id="actorsChecklist"></div>
       </div>
       <div class="panel-footer">
-        <button class="apply-btn-outline" id="applyActorsBtn">אישור</button>
+        <button class="apply-btn-outline" id="applyActorsBtn" disabled>אישור</button>
       </div>
     </div>
 
@@ -728,7 +778,7 @@ body {
       </div>
       <div class="panel-body"><div id="typeChecklist"></div></div>
       <div class="panel-footer">
-        <button class="apply-btn-outline" id="applyTypesBtn">אישור</button>
+        <button class="apply-btn-outline" id="applyTypesBtn" disabled>אישור</button>
       </div>
     </div>
 
@@ -740,7 +790,7 @@ body {
       </div>
       <div class="panel-body"><div id="langChecklist"></div></div>
       <div class="panel-footer">
-        <button class="apply-btn-outline" id="applyLangsBtn">אישור</button>
+        <button class="apply-btn-outline" id="applyLangsBtn" disabled>אישור</button>
       </div>
     </div>
   </div>
@@ -1134,6 +1184,83 @@ const ALL_SHOWS = [
    times:[{time:'20:00'},{time:'21:30', subtitles:'English'}]},
 ];
 
+const SCHEDULE_TEMPLATES = ALL_SHOWS.filter((show, idx, arr) => arr.findIndex(s => s.title === show.title) === idx);
+
+function seededUnit(month, day, salt = 0) {
+  const raw = Math.sin((month + 1) * 928371 + day * 364479 + salt * 19237) * 10000;
+  return raw - Math.floor(raw);
+}
+
+function targetShowCount(month, day) {
+  const r = seededUnit(month, day);
+  if (r < 0.08) return 0;
+  if (r < 0.35) return 1;
+  if (r < 0.67) return 2;
+  if (r < 0.90) return 3;
+  return 4;
+}
+
+function timesForShow(template, month, day, slot) {
+  const dow = new Date(2026, month, day).getDay();
+  if (template.tag === 'הצגות ילדים') {
+    return slot % 2 === 0
+      ? [{time: dow === 6 ? '10:30' : '11:00'}, {time: dow === 6 ? '12:30' : '16:00'}]
+      : [{time: dow === 6 ? '12:00' : '12:30'}];
+  }
+
+  const eveningSets = dow === 5
+    ? [['12:00'], ['13:30'], ['15:00'], ['17:30']]
+    : [['18:30'], ['19:00'], ['20:30'], ['21:00']];
+  const times = eveningSets[slot % eveningSets.length].map(time => ({time}));
+  if ((day + slot) % 5 === 0) times[0].subtitles = (day + slot) % 10 === 0 ? 'English' : 'Русский';
+  return times;
+}
+
+function normalizeDailySchedule() {
+  const originalByDay = new Map();
+  ALL_SHOWS.forEach(show => {
+    const key = `${show.month}-${show.day}`;
+    if (!originalByDay.has(key)) originalByDay.set(key, []);
+    originalByDay.get(key).push(show);
+  });
+
+  const scheduledShows = [];
+  for (let month = 0; month < 12; month++) {
+    const daysInMonth = new Date(2026, month + 1, 0).getDate();
+    for (let day = 1; day <= daysInMonth; day++) {
+      const key = `${month}-${day}`;
+      const desiredCount = targetShowCount(month, day);
+      const dayShows = [...(originalByDay.get(key) || [])].slice(0, desiredCount);
+      const usedTitles = new Set(dayShows.map(show => show.title));
+
+      for (let slot = dayShows.length; slot < desiredCount; slot++) {
+        let template = null;
+        for (let offset = 0; offset < SCHEDULE_TEMPLATES.length; offset++) {
+          const candidate = SCHEDULE_TEMPLATES[(month * 31 + day * 7 + slot * 5 + offset) % SCHEDULE_TEMPLATES.length];
+          if (!usedTitles.has(candidate.title)) { template = candidate; break; }
+        }
+        if (!template) template = SCHEDULE_TEMPLATES[(month + day + slot) % SCHEDULE_TEMPLATES.length];
+        usedTitles.add(template.title);
+
+        dayShows.push({
+          ...template,
+          actors: [...template.actors],
+          month,
+          day,
+          times: timesForShow(template, month, day, slot)
+        });
+      }
+
+      scheduledShows.push(...dayShows);
+    }
+  }
+
+  ALL_SHOWS.length = 0;
+  ALL_SHOWS.push(...scheduledShows);
+}
+
+normalizeDailySchedule();
+
 const ALL_SHOW_TITLES = [...new Set(ALL_SHOWS.map(s => s.title))];
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -1333,10 +1460,11 @@ function renderShows(scrollTarget) {
     </div>`;
   }).join('');
 
-  if (scrollTarget) {
-    requestAnimationFrame(() => scrollToDay(scrollTarget.m, scrollTarget.d, false));
-  }
-  if (window._updateStickyDayBar) window._updateStickyDayBar();
+  requestAnimationFrame(() => {
+    if (scrollTarget) scrollToDay(scrollTarget.m, scrollTarget.d, false);
+    updateCarouselFromScroll(true);
+    if (window._updateStickyDayBar) window._updateStickyDayBar();
+  });
 }
 
 // ─── Fast smooth scroll helpers ───────────────────────────────────────────────
@@ -1379,8 +1507,8 @@ function scrollToMonthInList(m) {
 }
 
 let _carouselSyncLock = false;
-function updateCarouselFromScroll() {
-  if (_carouselSyncLock) return;
+function updateCarouselFromScroll(force = false) {
+  if (_carouselSyncLock && !force) return;
   const scroller = document.getElementById('contentScroller');
   const list     = document.getElementById('showsList');
   const scrollTop = scroller.scrollTop + getGlassH() + 80;
@@ -1400,8 +1528,9 @@ function updateCarouselFromScroll() {
 // ─── Badges ───────────────────────────────────────────────────────────────────
 function updateBadge() {
   const n = activeTypes.size + activeShows.size + activeActors.size + activeLangs.size;
-  document.getElementById('filterBadge').style.display = n ? 'block' : 'none';
+  document.getElementById('filterBadge').style.display = 'none';
   document.getElementById('dateBadge').style.display = 'none';
+  document.getElementById('btnSinun').classList.toggle('has-reset', n > 0);
   document.getElementById('btnReset').style.display = n > 0 ? 'flex' : 'none';
 }
 
@@ -1449,6 +1578,15 @@ function updateMainDrawerBadges() {
 function updateApplyBtn() {
   const n = draftTypes.size + draftShows.size + draftActors.size + draftLangs.size;
   document.getElementById('applyBtn').textContent = n ? `סינון (${n})` : 'סינון';
+  document.getElementById('applyBtn').disabled = n === 0;
+  updatePanelApplyButtons();
+}
+
+function updatePanelApplyButtons() {
+  document.getElementById('applyShowsBtn').disabled = draftShows.size === 0;
+  document.getElementById('applyActorsBtn').disabled = draftActors.size === 0;
+  document.getElementById('applyTypesBtn').disabled = draftTypes.size === 0;
+  document.getElementById('applyLangsBtn').disabled = draftLangs.size === 0;
 }
 
 function setPanelClearVisibility(btnId, hasSelection) {
@@ -1508,10 +1646,17 @@ function closeDrawer() {
 }
 
 document.getElementById('btnSinun').addEventListener('click', () => openDrawer('filters'));
+document.getElementById('btnSinun').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    openDrawer('filters');
+  }
+});
 document.getElementById('btnDate').addEventListener('click', () => openDrawer('date'));
 document.getElementById('overlay').addEventListener('click', closeDrawer);
 document.getElementById('drawerXBtn').addEventListener('click', closeDrawer);
-document.getElementById('btnReset').addEventListener('click', () => {
+document.getElementById('btnReset').addEventListener('click', e => {
+  e.stopPropagation();
   activeTypes.clear(); activeShows.clear(); activeActors.clear(); activeLangs.clear();
   updateBadge(); renderShows();
 });
@@ -1621,7 +1766,7 @@ function buildShowsPanel(query='') {
   strip.innerHTML = [...draftShows].map(s => `<div class="selected-chip" data-show="${encodeURIComponent(s)}"><span>${s}</span><span class="selected-chip-x">×</span></div>`).join('');
   strip.querySelectorAll('.selected-chip').forEach(chip => chip.addEventListener('click', () => {
     draftShows.delete(decodeURIComponent(chip.dataset.show));
-    buildShowsPanel(document.getElementById('showsSearch').value); updateMainDrawerBadges();
+    buildShowsPanel(document.getElementById('showsSearch').value); updateMainDrawerBadges(); updateApplyBtn();
   }));
   const q = query.trim().toLowerCase();
   const filtered = q ? ALL_SHOW_TITLES.filter(t => t.includes(q)) : ALL_SHOW_TITLES;
@@ -1629,7 +1774,7 @@ function buildShowsPanel(query='') {
   document.getElementById('showsChecklist').querySelectorAll('.checklist-row').forEach(row => row.addEventListener('click', () => {
     const t = decodeURIComponent(row.dataset.title);
     draftShows.has(t) ? draftShows.delete(t) : draftShows.add(t);
-    buildShowsPanel(document.getElementById('showsSearch').value); updateMainDrawerBadges();
+    buildShowsPanel(document.getElementById('showsSearch').value); updateMainDrawerBadges(); updateApplyBtn();
   }));
 }
 document.getElementById('showsSearch').addEventListener('input', e => buildShowsPanel(e.target.value));
@@ -1640,7 +1785,7 @@ function buildActorsPanel(query='') {
   strip.innerHTML = [...draftActors].map(a => `<div class="selected-chip" data-actor="${encodeURIComponent(a)}"><span>${a}</span><span class="selected-chip-x">×</span></div>`).join('');
   strip.querySelectorAll('.selected-chip').forEach(chip => chip.addEventListener('click', () => {
     draftActors.delete(decodeURIComponent(chip.dataset.actor));
-    buildActorsPanel(document.getElementById('actorsSearch').value); updateMainDrawerBadges();
+    buildActorsPanel(document.getElementById('actorsSearch').value); updateMainDrawerBadges(); updateApplyBtn();
   }));
   const q = query.trim();
   const filtered = q ? ACTORS.filter(a => a.includes(q)) : ACTORS;
@@ -1648,7 +1793,7 @@ function buildActorsPanel(query='') {
   document.getElementById('actorsChecklist').querySelectorAll('.checklist-row').forEach(row => row.addEventListener('click', () => {
     const a = decodeURIComponent(row.dataset.actor);
     draftActors.has(a) ? draftActors.delete(a) : draftActors.add(a);
-    buildActorsPanel(document.getElementById('actorsSearch').value); updateMainDrawerBadges();
+    buildActorsPanel(document.getElementById('actorsSearch').value); updateMainDrawerBadges(); updateApplyBtn();
   }));
 }
 document.getElementById('actorsSearch').addEventListener('input', e => buildActorsPanel(e.target.value));
