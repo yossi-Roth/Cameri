@@ -189,7 +189,14 @@ body {
 .shows-list.fading { opacity: 0.12; pointer-events: none; }
 
 /* ── Floating sticky day bar — lives inside .glass-header, inherits blur ── */
-.sticky-day-bar { pointer-events: none; visibility: hidden; }
+.sticky-day-bar {
+  pointer-events: none;
+  visibility: hidden;
+  display: none;
+  /* Reduce initial gap under toolbar by 18px (11+11 -> 2+2). */
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
 .day-divider.sticky-day-bar { background: transparent; }
 .sticky-day-bar .day-divider-line { background: rgba(255,255,255,0.18); }
 
@@ -1733,9 +1740,11 @@ document.querySelectorAll('.filter-row[data-panel]').forEach(row => {
     }
     if (current) {
       barText.innerHTML = current.querySelector('.day-divider-text').innerHTML;
+      bar.style.display = 'flex';
       bar.style.visibility = 'visible';
     } else {
       bar.style.visibility = 'hidden';
+      bar.style.display = 'none';
     }
   }
 
