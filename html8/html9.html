@@ -1265,14 +1265,14 @@ const ALL_SHOW_TITLES = [...new Set(ALL_SHOWS.map(s => s.title))];
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CAL_YEAR = 2026;
-const TODAY_M  = 3;
-const TODAY_D  = 28;
+const TODAY_M  = 4;
+const TODAY_D  = 2;
 
 // ─── State ───────────────────────────────────────────────────────────────────
 let selectedMonth = TODAY_M;
 let activeCalMonth = TODAY_M, activeRangeStart = null, activeRangeEnd = null;
 let activeTypes = new Set(), activeShows = new Set(), activeActors = new Set(), activeLangs = new Set();
-let draftCalMonth = 3, draftRangeStart = null, draftRangeEnd = null;
+let draftCalMonth = TODAY_M, draftRangeStart = null, draftRangeEnd = null;
 let draftTypes = new Set(), draftShows = new Set(), draftActors = new Set(), draftLangs = new Set();
 let debounceTimer = null;
 let drawerMode = 'filters';
@@ -1461,9 +1461,13 @@ function renderShows(scrollTarget) {
   }).join('');
 
   requestAnimationFrame(() => {
-    if (scrollTarget) scrollToDay(scrollTarget.m, scrollTarget.d, false);
-    updateCarouselFromScroll(true);
-    if (window._updateStickyDayBar) window._updateStickyDayBar();
+    requestAnimationFrame(() => {
+      if (scrollTarget) scrollToDay(scrollTarget.m, scrollTarget.d, false);
+      if (window._updateStickyDayBar) window._updateStickyDayBar();
+      if (scrollTarget) scrollToDay(scrollTarget.m, scrollTarget.d, false);
+      if (window._updateStickyDayBar) window._updateStickyDayBar();
+      updateCarouselFromScroll(true);
+    });
   });
 }
 
@@ -1494,7 +1498,10 @@ function scrollToDay(m, d, animate = true) {
   const list     = document.getElementById('showsList');
   const group    = list.querySelector(`.day-group[data-month="${m}"][data-day="${d}"]`);
   if (!group) return;
-  const targetY = Math.max(0, group.offsetTop - getGlassH());
+  const divider = group.querySelector('.day-divider');
+  const dividerTop = divider ? divider.offsetTop : group.offsetTop;
+  const dividerH = divider ? divider.offsetHeight : 0;
+  const targetY = Math.max(0, dividerTop + dividerH - getGlassH() + 1);
   if (animate) fastScrollTo(targetY, scroller);
   else scroller.scrollTop = targetY;
 }
@@ -1928,7 +1935,7 @@ document.querySelectorAll('.filter-row[data-panel]').forEach(row => {
     headerHidden = false;
 
     // Bring toolbar back from display:none at height 0, then animate open
-    toolbar.style.display     = 'flex';
+    toolbar.style.display     = 'grid';
     toolbar.style.transition  = 'none';
     toolbar.style.height      = '0';
     toolbar.style.overflow    = 'hidden';
