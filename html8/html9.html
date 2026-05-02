@@ -95,26 +95,74 @@ body {
 /* Single blurred glass surface — wraps month + day bar as one unit */
 .glass-header {
   position: sticky; top: 0; z-index: 9;
+  isolation: isolate;
 }
 /* Blur + tint live on a pseudo-element so the mask fades the blur itself */
 .glass-header::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0; left: 0; right: 0; bottom: -86px;
   z-index: -1;
-  background: rgba(26,26,29,0.82);
-  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+  background:
+    linear-gradient(to bottom,
+      rgba(26,26,29,0.98) 0%,
+      rgba(26,26,29,0.95) calc(100% - 105px),
+      rgba(26,26,29,0.85) calc(100% - 80px),
+      rgba(26,26,29,0.70) calc(100% - 55px),
+      rgba(26,26,29,0.50) calc(100% - 35px),
+      rgba(26,26,29,0.30) calc(100% - 22px),
+      rgba(26,26,29,0.15) calc(100% - 14px),
+      rgba(26,26,29,0) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  -webkit-mask-image: linear-gradient(to bottom,
+    #000 0%,
+    #000 calc(100% - 105px),
+    rgba(0,0,0,0.92) calc(100% - 80px),
+    rgba(0,0,0,0.75) calc(100% - 55px),
+    rgba(0,0,0,0.50) calc(100% - 35px),
+    rgba(0,0,0,0.25) calc(100% - 22px),
+    rgba(0,0,0,0.08) calc(100% - 14px),
+    transparent 100%);
+  mask-image: linear-gradient(to bottom,
+    #000 0%,
+    #000 calc(100% - 105px),
+    rgba(0,0,0,0.92) calc(100% - 80px),
+    rgba(0,0,0,0.75) calc(100% - 55px),
+    rgba(0,0,0,0.50) calc(100% - 35px),
+    rgba(0,0,0,0.25) calc(100% - 22px),
+    rgba(0,0,0,0.08) calc(100% - 14px),
+    transparent 100%);
+  pointer-events: none;
 }
 /* Fade starts right below glass surface, flows into content */
 .glass-header::after {
   content: '';
   position: absolute;
-  top: 100%; left: 0; right: 0;
-  height: 44px;
-  background: linear-gradient(to bottom, rgba(26,26,29,0.70) 0%, transparent 100%);
+  top: calc(100% - 16px); left: 0; right: 0;
+  height: 80px;
+  background:
+    linear-gradient(to bottom,
+      rgba(26,26,29,0.60) 0%,
+      rgba(26,26,29,0.40) 30%,
+      rgba(26,26,29,0.20) 60%,
+      rgba(26,26,29,0.05) 85%,
+      rgba(26,26,29,0) 100%);
   pointer-events: none;
   opacity: 1;
   transition: opacity 0.12s ease;
+  -webkit-mask-image: linear-gradient(to bottom,
+    #000 0%,
+    #000 70%,
+    rgba(0,0,0,0.80) 85%,
+    rgba(0,0,0,0.40) 95%,
+    transparent 100%);
+  mask-image: linear-gradient(to bottom,
+    #000 0%,
+    #000 70%,
+    rgba(0,0,0,0.80) 85%,
+    rgba(0,0,0,0.40) 95%,
+    transparent 100%);
 }
 .glass-header:not(.is-scrolled)::after { opacity: 0; }
 .month-section { flex-shrink: 0; height: 78px; overflow: hidden; }
@@ -358,10 +406,10 @@ body {
   align-items: center;
   justify-content: center;
   font-family: 'FtOrvany', sans-serif;
-  font-weight: 700;
+  font-weight: 400;
   font-stretch: semi-condensed;
   font-size: 18px;
-  color: rgba(255,255,255,0.9);
+  color: rgba(255,255,255,0.75);
   letter-spacing: 0.2px;
 }
 
@@ -1468,7 +1516,7 @@ function renderShows(scrollTarget) {
             ${s.desc ? `<div class="show-desc">${s.desc}</div>` : ''}
           </div>
           <button class="show-cta">פרטים וכרטיסים</button>
-        </div>`).join('') : `<div class="day-empty">אין הצגות ב-${group.day}.${group.month + 1}</div>`}
+        </div>`).join('') : `<div class="day-empty">אין הצגות ביום זה</div>`}
     </div>`;
   }).join('');
 
