@@ -540,7 +540,7 @@ body {
 .panel-clear:active { color: #ed2527; }
 .panel-body { flex: 1; overflow-y: auto; scrollbar-width: none; }
 .panel-body::-webkit-scrollbar { display: none; }
-.panel-footer { flex-shrink: 0; padding: 12px 20px 28px; }
+.panel-footer { flex-shrink: 0; padding: 12px 20px calc(28px + env(safe-area-inset-bottom, 0px)); }
 
 .panel-search {
   position: relative; display: flex; align-items: center; gap: 10px;
