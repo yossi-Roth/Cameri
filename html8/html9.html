@@ -135,36 +135,7 @@ body {
     transparent 100%);
   pointer-events: none;
 }
-/* Fade starts right below glass surface, flows into content */
-.glass-header::after {
-  content: '';
-  position: absolute;
-  top: calc(100% - 16px); left: 0; right: 0;
-  height: 80px;
-  background:
-    linear-gradient(to bottom,
-      rgba(26,26,29,0.60) 0%,
-      rgba(26,26,29,0.40) 30%,
-      rgba(26,26,29,0.20) 60%,
-      rgba(26,26,29,0.05) 85%,
-      rgba(26,26,29,0) 100%);
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity 0.12s ease;
-  -webkit-mask-image: linear-gradient(to bottom,
-    #000 0%,
-    #000 70%,
-    rgba(0,0,0,0.80) 85%,
-    rgba(0,0,0,0.40) 95%,
-    transparent 100%);
-  mask-image: linear-gradient(to bottom,
-    #000 0%,
-    #000 70%,
-    rgba(0,0,0,0.80) 85%,
-    rgba(0,0,0,0.40) 95%,
-    transparent 100%);
-}
-.glass-header:not(.is-scrolled)::after { opacity: 0; }
+/* Fade overlay removed - was causing toolbar overlay issues */
 .month-section { flex-shrink: 0; height: 78px; overflow: hidden; }
 .month-track {
   display: flex; align-items: center;
@@ -197,7 +168,7 @@ body {
   gap: 12px; padding: 14px 20px 10px;
   /* No position/z-index here — a stacking context would break the parent's
      backdrop-filter in WebKit, making toolbar edges visible while scrolling */
-  background: transparent;
+  background: var(--bg);
 }
 .toolbar-btn {
   flex: 1 1 0; min-width: 0; box-sizing: border-box;
@@ -270,17 +241,12 @@ body {
 }
 .shows-list.fading { opacity: 0.12; pointer-events: none; }
 
-/* ── Floating sticky day bar — lives inside .glass-header, inherits blur ── */
+/* ── Floating sticky day bar — DISABLED ── */
 .sticky-day-bar {
-  pointer-events: none;
-  visibility: hidden;
-  display: none;
-  /* Reduce initial gap under toolbar by 18px (11+11 -> 2+2). */
-  padding-top: 2px;
-  padding-bottom: 2px;
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
-.day-divider.sticky-day-bar { background: transparent; }
-.sticky-day-bar .day-divider-line { background: rgba(255,255,255,0.18); }
 
 /* ── Day divider (inline, not sticky) ── */
 .day-divider {
@@ -701,12 +667,7 @@ body {
         <span class="toolbar-badge" id="dateBadge"></span>
       </button>
     </div>
-    <div class="day-divider sticky-day-bar" id="stickyDayBar">
-      <div class="day-divider-line"></div>
-      <div class="day-divider-text" id="stickyDayText"></div>
-      <div class="day-divider-line"></div>
-    </div>
-  </div>
+      </div>
 
   <!-- Shows list -->
   <div id="showsList" class="shows-list"></div>
@@ -2037,33 +1998,28 @@ document.querySelectorAll('.filter-row[data-panel]').forEach(row => {
   }
 
   function updateStickyDayBar() {
-    const ghH = glassHeader ? glassHeader.offsetHeight : 78;
-    const st  = scroller.scrollTop;
-    let current = null;
-    for (const d of list.querySelectorAll('.day-divider')) {
-      if (d.offsetTop < st + ghH) current = d;
-      else break;
-    }
-    if (current) {
-      barText.innerHTML = current.querySelector('.day-divider-text').innerHTML;
-      bar.style.display = 'flex';
-      bar.style.visibility = 'visible';
-    } else {
-      bar.style.visibility = 'hidden';
-      bar.style.display = 'none';
-    }
+    // Sticky day bar disabled - no functionality needed
+    return;
   }
 
   let _rafPending = false;
+  let _scrollDebounce = null;
 
   scroller.addEventListener('scroll', () => {
     if (_rafPending) return;
     _rafPending = true;
+    
+    // Clear existing debounce
+    clearTimeout(_scrollDebounce);
+    
     requestAnimationFrame(() => {
       _rafPending = false;
       const st    = Math.max(0, scroller.scrollTop);
       const delta = st - lastST;
       lastST = st;
+
+      // Ignore small scroll movements (less than 5px) to prevent jittery behavior
+      if (Math.abs(delta) < 5 && st > 0) return;
 
       if (st <= 0) {
         clearTimeout(_showTimer); _showTimer = null;
@@ -2080,6 +2036,11 @@ document.querySelectorAll('.filter-row[data-panel]').forEach(row => {
       glassHeader.classList.toggle('is-scrolled', st > 10);
       updateStickyDayBar();
     });
+    
+    // Debounce rapid scroll events
+    _scrollDebounce = setTimeout(() => {
+      _scrollDebounce = null;
+    }, 16); // ~60fps
   }, { passive: true });
 
   window._updateStickyDayBar = updateStickyDayBar;
