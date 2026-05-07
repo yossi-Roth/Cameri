@@ -105,13 +105,13 @@ body {
   z-index: -1;
   background:
     linear-gradient(to bottom,
-      rgba(26,26,29,0.98) 0%,
-      rgba(26,26,29,0.95) calc(100% - 105px),
-      rgba(26,26,29,0.85) calc(100% - 80px),
-      rgba(26,26,29,0.70) calc(100% - 55px),
-      rgba(26,26,29,0.50) calc(100% - 35px),
-      rgba(26,26,29,0.30) calc(100% - 22px),
-      rgba(26,26,29,0.15) calc(100% - 14px),
+      rgba(26,26,29,0.72) 0%,
+      rgba(26,26,29,0.68) calc(100% - 105px),
+      rgba(26,26,29,0.55) calc(100% - 80px),
+      rgba(26,26,29,0.40) calc(100% - 55px),
+      rgba(26,26,29,0.25) calc(100% - 35px),
+      rgba(26,26,29,0.12) calc(100% - 22px),
+      rgba(26,26,29,0.05) calc(100% - 14px),
       rgba(26,26,29,0) 100%);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -165,7 +165,7 @@ body {
 .toolbar-row {
   flex-shrink: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px; padding: 14px 20px 10px;
-  background: var(--bg);
+  background: transparent;
 }
 .toolbar-btn {
   flex: 1 1 0; min-width: 0; box-sizing: border-box;
@@ -237,12 +237,16 @@ body {
 }
 .shows-list.fading { opacity: 0.12; pointer-events: none; }
 
-/* ── Floating sticky day bar — DISABLED ── */
+/* ── Floating sticky day bar (inside glass-header, inherits its blur) ── */
 .sticky-day-bar {
-  display: none !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
+  display: none;
+  pointer-events: none;
+  justify-content: center;
 }
+.day-divider.sticky-day-bar {
+  background: transparent;
+}
+.sticky-day-bar .day-divider-line { display: none; }
 
 /* ── Day divider (inline, not sticky) ── */
 .day-divider {
@@ -285,10 +289,10 @@ body {
   display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
 }
 .category-tag {
-  display: inline-flex; align-items: center; height: var(--tag-h);
-  padding: 3px 8px 2px; align-self: flex-start;
+  display: inline-flex; align-items: center; height: 19px;
+  padding: 2px 6px 1px; align-self: flex-start;
   font-family: 'FtOrvany', sans-serif; font-weight: 700; font-stretch: semi-condensed;
-  font-size: 15px; letter-spacing: 0.4px; color: #fff1ed; white-space: nowrap; flex-shrink: 0;
+  font-size: 11px; letter-spacing: 0.4px; color: #fff1ed; white-space: nowrap; flex-shrink: 0;
 }
 .show-title {
   font-family: 'Caravan', sans-serif; font-weight: 900;
@@ -296,8 +300,9 @@ body {
   text-align: right; width: 100%; letter-spacing: 0.5px;
 }
 .show-poster {
-  width: 108px; height: 70px; flex-shrink: 0; overflow: hidden;
+  width: 74px; height: 104px; flex-shrink: 0; overflow: hidden;
   background-size: cover; background-position: center; background-color: #1a1a1a;
+  border-radius: 3px;
 }
 
 /* ── Meta row: clock+times | pin+hall ── */
@@ -456,7 +461,8 @@ body {
   cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.15s;
 }
 .apply-btn:active { background: #c8102e; }
-.apply-btn:disabled {
+.apply-btn:disabled,
+.apply-btn-outline:disabled {
   opacity: 0.28; cursor: default; pointer-events: none;
 }
 
@@ -467,9 +473,46 @@ body {
 }
 .panel-back { font-size: 26px; line-height: 1; color: #1a1a1d; background: none; border: none; cursor: pointer; padding: 0 4px; -webkit-tap-highlight-color: transparent; flex-shrink: 0; unicode-bidi: isolate; direction: ltr; }
 .panel-title { font-family: 'FtOrvany', sans-serif; font-weight: 900; font-stretch: semi-condensed; font-size: 22px; color: #1a1a1d; flex: 1; text-align: center; }
+.panel-clear { font-family: 'FtOrvany', sans-serif; font-weight: 400; font-stretch: semi-condensed; font-size: 15px; color: #2a2a2c; background: none; border: none; cursor: pointer; padding: 4px 0; -webkit-tap-highlight-color: transparent; flex-shrink: 0; }
+.panel-clear:active { color: #ed2527; }
 .panel-body { flex: 1; overflow-y: auto; scrollbar-width: none; }
 .panel-body::-webkit-scrollbar { display: none; }
 .panel-footer { flex-shrink: 0; padding: 12px 20px calc(28px + env(safe-area-inset-bottom, 0px)); }
+
+.panel-search {
+  position: relative; display: flex; align-items: center; gap: 10px;
+  padding: 28px 30px 14px; direction: rtl;
+}
+.panel-search::after { content: ''; position: absolute; bottom: 0; left: 30px; right: 30px; height: 1.5px; background: #1a1a1d; }
+.panel-search-input {
+  flex: 1; border: none; outline: none;
+  font-family: 'FtOrvany', sans-serif; font-weight: 400; font-stretch: semi-condensed;
+  font-size: 17px; color: #1a1a1d; background: transparent; text-align: right; direction: rtl;
+}
+.panel-search-input::placeholder { color: rgba(42,42,44,0.55); }
+
+.selected-chips-strip { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 30px; border-bottom: 1px solid rgba(42,42,44,0.08); }
+.selected-chips-strip:empty { display: none; }
+.selected-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #2a2a2c; color: #fff1ed; border-radius: 20px;
+  height: 36px; padding: 0 12px 0 10px;
+  font-family: 'FtOrvany', sans-serif; font-weight: 400; font-stretch: semi-condensed; font-size: 14px;
+  cursor: pointer; flex-shrink: 0; -webkit-tap-highlight-color: transparent;
+}
+.selected-chip-x {
+  position: relative; width: 18px; height: 18px; border-radius: 50%;
+  background: #fff1ed; color: #1a1a1d;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0; line-height: 1; opacity: 1; flex-shrink: 0;
+}
+.selected-chip-x::before,
+.selected-chip-x::after {
+  content: ''; position: absolute; width: 10px; height: 2px;
+  border-radius: 2px; background: currentColor;
+}
+.selected-chip-x::before { transform: rotate(45deg); }
+.selected-chip-x::after  { transform: rotate(-45deg); }
 
 .checklist-row {
   position: relative; display: flex; align-items: center; gap: 10px; padding: 16px 30px;
@@ -588,6 +631,10 @@ body {
         <span class="toolbar-badge" id="dateBadge"></span>
       </button>
     </div>
+    <!-- Sticky day bar — inside glass-header so it shares the blur surface -->
+    <div class="day-divider sticky-day-bar" id="stickyDayBar">
+      <div class="day-divider-text" id="stickyDayText"></div>
+    </div>
   </div><!-- /.glass-header -->
 
   <!-- Shows list -->
@@ -664,12 +711,22 @@ body {
     <div class="drawer-panel" id="panelHatzagot">
       <div class="panel-header">
         <button class="panel-back" id="backFromHatzagot">›</button>
-        <span class="panel-title">הצגות</span>
-        <span style="width:34px"></span>
+        <span class="panel-title">הצגות ומופעים</span>
+        <button class="panel-clear" id="clearShowsPanelBtn" style="visibility:hidden;pointer-events:none">איפוס</button>
       </div>
-      <div class="panel-body"><div id="hatzagotChecklist"></div></div>
+      <div class="panel-body">
+        <div class="panel-search">
+          <input class="panel-search-input" id="showsSearch" type="text" placeholder="חיפוש">
+          <svg width="18" height="18" viewBox="0 0 22 22" fill="none" style="flex-shrink:0">
+            <circle cx="9.5" cy="9.5" r="7" stroke="rgba(42,42,44,0.55)" stroke-width="1.7"/>
+            <path d="M15 15L20 20" stroke="rgba(42,42,44,0.55)" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="selected-chips-strip" id="showsChipsStrip"></div>
+        <div id="showsChecklist"></div>
+      </div>
       <div class="panel-footer">
-        <button class="apply-btn-outline" id="applyHatzagotBtn">בחירה</button>
+        <button class="apply-btn-outline" id="applyHatzagotBtn" disabled>אישור</button>
       </div>
     </div>
 
@@ -705,8 +762,7 @@ body {
 const MONTHS   = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
 const DOW_NAMES= ["יום א'","יום ב'","יום ג'","יום ד'","יום ה'","יום ו'",'שבת'];
 const DOW_HE   = ['א','ב','ג','ד','ה','ו','ש'];
-const TYPES_HATZAGOT = ['הצגות הקאמרי','הצגות אורחות','הצגות ילדים','הקאמרי אקדמי'];
-const TYPES_MORE     = ['מחזות זמר','פנורמה','קפה ותיאטרון','פסטיבלים ומיוחדים','מחוות ואירועים ספרותיים'];
+const TYPES_MORE = ['הקאמרי אקדמי','פנורמה','מחוות ואירועים ספרותיים','קפה ותיאטרון','פסטיבלים ואירועים'];
 const LANGS    = ['עברית','Русский','English'];
 
 const TAG_COLORS = {
@@ -714,7 +770,7 @@ const TAG_COLORS = {
   'הקאמרי אקדמי':          '#2a3931',
   'פנורמה':                 '#ad7475',
   'קפה ותיאטרון':           '#774930',
-  'פסטיבלים ומיוחדים':      '#8d0f11',
+  'פסטיבלים ואירועים':       '#8d0f11',
   'הצגות אורחות':           '#306677',
   'הצגות ילדים':            '#924600',
   'מחזות זמר':              '#49005d',
@@ -725,7 +781,7 @@ const POSTER_BG = {
   'הקאמרי אקדמי':          'linear-gradient(155deg,#0e1a17 0%,#2a3931 100%)',
   'פנורמה':                 'linear-gradient(155deg,#3a2020 0%,#ad7475 100%)',
   'קפה ותיאטרון':           'linear-gradient(155deg,#2a1a0a 0%,#774930 100%)',
-  'פסטיבלים ומיוחדים':      'linear-gradient(155deg,#2a0405 0%,#8d0f11 100%)',
+  'פסטיבלים ואירועים':       'linear-gradient(155deg,#2a0405 0%,#8d0f11 100%)',
   'הצגות אורחות':           'linear-gradient(155deg,#061820 0%,#306677 100%)',
   'הצגות ילדים':            'linear-gradient(155deg,#2a1200 0%,#924600 100%)',
   'מחזות זמר':              'linear-gradient(155deg,#160020 0%,#49005d 100%)',
@@ -746,7 +802,7 @@ const ALL_SHOWS = [
    image:'https://www.cameri.co.il/wp-content/uploads/2025/10/חשמלית-אורך.jpg',
    actors:['נורית גלרון','יגאל נאור'],
    desc:'דרמה אמריקאית קלאסית על עולם שנחרב ותשוקה שאינה מרפה',
-   times:[{time:'19:00', hall:'הקאמרי 1'},{time:'21:30', hall:'הקאמרי 1', subtitles:'Русский'}]},
+   times:[{time:'18:00', hall:'הקאמרי 1'},{time:'21:30', hall:'הקאמרי 1', subtitles:'Русский'}]},
 
   {month:3, day:8,  title:'קברט',
    tag:'מחזות זמר',
@@ -781,7 +837,7 @@ const ALL_SHOWS = [
    image:'https://www.cameri.co.il/wp-content/uploads/2025/10/אוון-מובייל-1.jpg',
    actors:['עמית מרקוס','אורנה פורת'],
    desc:'מחזמר מרגש ועכשווי על בדידות, שקר קטן וקשר בלתי צפוי',
-   times:[{time:'21:00', hall:'הקאמרי 1'},{time:'18:30', hall:'הקאמרי 1', subtitles:'Русский'}]},
+   times:[{time:'18:00', hall:'הקאמרי 1'},{time:'21:30', hall:'הקאמרי 1', subtitles:'Русский'}]},
 
   {month:3, day:17, title:'קברט',
    tag:'מחזות זמר',
@@ -859,7 +915,7 @@ const ALL_SHOWS = [
    image:'https://www.cameri.co.il/wp-content/uploads/2025/12/הלוויה-חורפית-1.jpg',
    actors:['נורית גלרון','מוני מושונוב'],
    desc:'קומדיה שחורה על משפחה שמתכנסת ומגלה שיש דברים קשים מהמוות',
-   times:[{time:'20:00', hall:'הקאמרי 1'},{time:'22:00', hall:'הקאמרי 1', subtitles:'Русский'}]},
+   times:[{time:'18:00', hall:'הקאמרי 1'},{time:'21:30', hall:'הקאמרי 1', subtitles:'Русский'}]},
 
   {month:4, day:6,  title:'פיטר פן',
    tag:'הצגות ילדים',
@@ -887,7 +943,7 @@ const ALL_SHOWS = [
    image:'https://www.cameri.co.il/wp-content/uploads/2025/12/קברט-2-2-1.jpg',
    actors:['שי אביבי','מלי שניידר'],
    desc:'מחזמר נוצץ ומרגש על ברלין של שנות השלושים',
-   times:[{time:'21:30', hall:'הקאמרי 1'},{time:'18:30', hall:'הקאמרי 1', subtitles:'English'}]},
+   times:[{time:'18:00', hall:'הקאמרי 1'},{time:'21:30', hall:'הקאמרי 1', subtitles:'English'}]},
 
   {month:4, day:14, title:'פיטר פן',
    tag:'הצגות ילדים',
@@ -929,7 +985,7 @@ const ALL_SHOWS = [
    image:'https://www.cameri.co.il/wp-content/uploads/2025/10/אוון-מובייל-1.jpg',
    actors:['עמית מרקוס','שי אביבי'],
    desc:'מחזמר מרגש ועכשווי על בדידות, שקר קטן וקשר בלתי צפוי',
-   times:[{time:'21:00', hall:'הקאמרי 1'},{time:'18:30', hall:'הקאמרי 1', subtitles:'English'}]},
+   times:[{time:'18:00', hall:'הקאמרי 1'},{time:'21:30', hall:'הקאמרי 1', subtitles:'English'}]},
 
   {month:4, day:24, title:'הנפש הטובה מסצ׳ואן',
    tag:'הצגות הקאמרי',
@@ -972,7 +1028,7 @@ const ALL_SHOWS = [
    image:'https://www.cameri.co.il/wp-content/uploads/2025/10/אוון-מובייל-1.jpg',
    actors:['עמית מרקוס','שי אביבי'],
    desc:'מחזמר מרגש ועכשווי על בדידות, שקר קטן וקשר בלתי צפוי',
-   times:[{time:'21:00', hall:'הקאמרי 1'},{time:'18:30', hall:'הקאמרי 1', subtitles:'Русский'}]},
+   times:[{time:'18:00', hall:'הקאמרי 1'},{time:'21:30', hall:'הקאמרי 1', subtitles:'Русский'}]},
 
   {month:5, day:9,  title:'פיטר פן',
    tag:'הצגות ילדים',
@@ -1143,9 +1199,11 @@ const TODAY_D  = 7;
 // ─── State ───────────────────────────────────────────────────────────────────
 let selectedMonth = TODAY_M;
 let activeCalMonth = TODAY_M, activeRangeStart = null, activeRangeEnd = null;
-let activeTypes = new Set(), activeLangs = new Set();
+const ALL_SHOW_TITLES = [...new Set(ALL_SHOWS.map(s => s.title))].sort((a,b) => a.localeCompare(b,'he'));
+
+let activeTypes = new Set(), activeShows = new Set(), activeLangs = new Set();
 let draftCalMonth = TODAY_M, draftRangeStart = null, draftRangeEnd = null;
-let draftTypes = new Set(), draftLangs = new Set();
+let draftTypes = new Set(), draftShows = new Set(), draftLangs = new Set();
 let debounceTimer = null;
 let drawerMode = 'filters';
 
@@ -1244,9 +1302,10 @@ monthTrack.addEventListener('scroll', () => {
 }, { passive: true });
 
 // ─── Show rendering ───────────────────────────────────────────────────────────
-function getFilteredShows(types, langs) {
+function getFilteredShows(types, shows, langs) {
   let s = [...ALL_SHOWS];
   if (types.size) s = s.filter(x => types.has(x.tag));
+  if (shows.size) s = s.filter(x => shows.has(x.title));
   if (langs.size) s = s.filter(x => x.times.some(t => t.subtitles && langs.has(t.subtitles)));
   return s;
 }
@@ -1264,7 +1323,7 @@ const FEED_DAYS = buildFeedDays();
 
 function renderShows(scrollTarget) {
   const list  = document.getElementById('showsList');
-  const shows = getFilteredShows(activeTypes, activeLangs);
+  const shows = getFilteredShows(activeTypes, activeShows, activeLangs);
 
   const byDay = new Map();
   shows.forEach(s => {
@@ -1381,8 +1440,8 @@ function dayOfYear(month, day) {
   return Math.floor((new Date(CAL_YEAR, month, day) - new Date(CAL_YEAR, 0, 1)) / 86400000);
 }
 
-function getClosestFilteredShowTarget(types, langs, fromDate) {
-  const filtered = getFilteredShows(types, langs);
+function getClosestFilteredShowTarget(types, shows, langs, fromDate) {
+  const filtered = getFilteredShows(types, shows, langs);
   if (!filtered.length) return null;
   const from = dayOfYear(fromDate.month, fromDate.day);
   let best = filtered[0], bestDist = Infinity;
@@ -1414,7 +1473,7 @@ function updateCarouselFromScroll(force = false) {
 
 // ─── Badges ───────────────────────────────────────────────────────────────────
 function updateBadge() {
-  const n = activeTypes.size + activeLangs.size;
+  const n = activeTypes.size + activeShows.size + activeLangs.size;
   document.getElementById('filterBadge').style.display = 'none';
   document.getElementById('dateBadge').style.display = 'none';
   document.getElementById('btnSinun').classList.toggle('has-reset', n > 0);
@@ -1451,15 +1510,15 @@ function setFilterRow(rowId, valId, items) {
 }
 
 function updateMainDrawerBadges() {
-  setFilterRow('rowHatzagot', 'valHatzagot', [...draftTypes].filter(t => TYPES_HATZAGOT.includes(t)));
+  setFilterRow('rowHatzagot', 'valHatzagot', [...draftShows]);
   setFilterRow('rowMore',     'valMore',     [...draftTypes].filter(t => TYPES_MORE.includes(t)));
   setFilterRow('rowLangs',    'valLangs',    [...draftLangs]);
-  const hasFilters = draftTypes.size || draftLangs.size;
+  const hasFilters = draftTypes.size || draftShows.size || draftLangs.size;
   document.getElementById('clearBtn').style.visibility = hasFilters ? 'visible' : 'hidden';
 }
 
 function updateApplyBtn() {
-  const n = draftTypes.size + draftLangs.size;
+  const n = draftTypes.size + draftShows.size + draftLangs.size;
   document.getElementById('applyBtn').textContent = n ? `סינון (${n})` : 'סינון';
   document.getElementById('applyBtn').disabled = n === 0;
 }
@@ -1482,6 +1541,7 @@ function openDrawer(mode) {
   // sync drafts from active
   draftCalMonth = activeCalMonth;
   draftTypes  = new Set(activeTypes);
+  draftShows  = new Set(activeShows);
   draftLangs  = new Set(activeLangs);
 
   if (mode === 'date') {
@@ -1492,7 +1552,7 @@ function openDrawer(mode) {
   } else {
     drawer.classList.remove('date-mode');
     xBtn.classList.remove('date-mode');
-    buildHatzagotPanel(); buildMorePanel(); buildLangInline();
+    buildShowsPanel(); buildMorePanel(); buildLangInline();
     updateMainDrawerBadges(); updateApplyBtn();
   }
   drawer.classList.add('open');
@@ -1519,20 +1579,21 @@ document.getElementById('overlay').addEventListener('click', closeDrawer);
 document.getElementById('drawerXBtn').addEventListener('click', closeDrawer);
 document.getElementById('btnReset').addEventListener('click', e => {
   e.stopPropagation();
-  activeTypes.clear(); activeLangs.clear();
+  activeTypes.clear(); activeShows.clear(); activeLangs.clear();
   updateBadge(); renderShows();
 });
 
 document.getElementById('clearBtn').addEventListener('click', () => {
-  draftTypes.clear(); draftLangs.clear();
-  buildHatzagotPanel(); buildMorePanel(); buildLangInline();
+  draftTypes.clear(); draftShows.clear(); draftLangs.clear();
+  buildShowsPanel(); buildMorePanel(); buildLangInline();
   updateMainDrawerBadges(); updateApplyBtn();
 });
 
 document.getElementById('applyBtn').addEventListener('click', () => {
   const fromDate = getVisibleFeedDate();
-  const scrollTarget = getClosestFilteredShowTarget(draftTypes, draftLangs, fromDate);
+  const scrollTarget = getClosestFilteredShowTarget(draftTypes, draftShows, draftLangs, fromDate);
   activeTypes  = new Set(draftTypes);
+  activeShows  = new Set(draftShows);
   activeLangs  = new Set(draftLangs);
   activeCalMonth = draftCalMonth;
   updateBadge(); renderShows(scrollTarget); closeDrawer();
@@ -1590,11 +1651,36 @@ function buildChecklist(containerId, types) {
   list.querySelectorAll('.checklist-row').forEach(row => row.addEventListener('click', () => {
     const t = decodeURIComponent(row.dataset.type);
     draftTypes.has(t) ? draftTypes.delete(t) : draftTypes.add(t);
-    buildHatzagotPanel(); buildMorePanel(); updateMainDrawerBadges(); updateApplyBtn();
+    buildShowsPanel(); buildMorePanel(); updateMainDrawerBadges(); updateApplyBtn();
   }));
 }
-function buildHatzagotPanel() { buildChecklist('hatzagotChecklist', TYPES_HATZAGOT); }
-function buildMorePanel()     { buildChecklist('moreChecklist',     TYPES_MORE); }
+function buildShowsPanel(query = '') {
+  const strip = document.getElementById('showsChipsStrip');
+  strip.innerHTML = [...draftShows].map(s =>
+    `<div class="selected-chip" data-show="${encodeURIComponent(s)}"><span>${s}</span><span class="selected-chip-x">×</span></div>`
+  ).join('');
+  strip.querySelectorAll('.selected-chip').forEach(chip => chip.addEventListener('click', () => {
+    draftShows.delete(decodeURIComponent(chip.dataset.show));
+    buildShowsPanel(document.getElementById('showsSearch').value);
+    updateMainDrawerBadges(); updateApplyBtn();
+  }));
+  const q = query.trim().toLowerCase();
+  const filtered = q ? ALL_SHOW_TITLES.filter(t => t.toLowerCase().includes(q)) : ALL_SHOW_TITLES;
+  document.getElementById('showsChecklist').innerHTML = filtered.map(t =>
+    `<div class="checklist-row${draftShows.has(t) ? ' selected' : ''}" data-title="${encodeURIComponent(t)}"><span class="checklist-check">✓</span><span class="checklist-label">${t}</span></div>`
+  ).join('');
+  document.getElementById('showsChecklist').querySelectorAll('.checklist-row').forEach(row => row.addEventListener('click', () => {
+    const t = decodeURIComponent(row.dataset.title);
+    draftShows.has(t) ? draftShows.delete(t) : draftShows.add(t);
+    buildShowsPanel(document.getElementById('showsSearch').value);
+    updateMainDrawerBadges(); updateApplyBtn();
+  }));
+  const clearBtn = document.getElementById('clearShowsPanelBtn');
+  clearBtn.style.visibility  = draftShows.size ? 'visible' : 'hidden';
+  clearBtn.style.pointerEvents = draftShows.size ? 'auto' : 'none';
+  document.getElementById('applyHatzagotBtn').disabled = draftShows.size === 0;
+}
+function buildMorePanel() { buildChecklist('moreChecklist', TYPES_MORE); }
 
 function buildLangInline() {
   const list = document.getElementById('langChecklist');
@@ -1606,6 +1692,12 @@ function buildLangInline() {
   }));
 }
 
+document.getElementById('showsSearch').addEventListener('input', e => buildShowsPanel(e.target.value));
+document.getElementById('clearShowsPanelBtn').addEventListener('click', () => {
+  draftShows.clear();
+  document.getElementById('showsSearch').value = '';
+  buildShowsPanel(); updateMainDrawerBadges(); updateApplyBtn();
+});
 document.getElementById('applyHatzagotBtn').addEventListener('click', () => goBackToMain());
 document.getElementById('applyMoreBtn').addEventListener('click', () => goBackToMain());
 document.getElementById('applyLangsBtn').addEventListener('click', () => goBackToMain());
@@ -1626,7 +1718,7 @@ document.querySelectorAll('.filter-row[data-panel]').forEach(row => {
     const id = row.dataset.panel;
     openPanel(id);
     if (id === 'panelDates')    buildBigCalendar();
-    if (id === 'panelHatzagot') buildHatzagotPanel();
+    if (id === 'panelHatzagot') { document.getElementById('showsSearch').value = ''; buildShowsPanel(); }
     if (id === 'panelMore')     buildMorePanel();
     if (id === 'panelLangs')    buildLangInline();
   });
@@ -1760,10 +1852,33 @@ document.querySelectorAll('.filter-row[data-panel]').forEach(row => {
       }
 
       glassHeader.classList.toggle('is-scrolled', st > 10);
+      updateStickyDayBar();
     });
   }, { passive: true });
 
-  window._updateStickyDayBar = function() {};
+  const bar     = document.getElementById('stickyDayBar');
+  const barText = document.getElementById('stickyDayText');
+
+  function updateStickyDayBar() {
+    if (!bar) return;
+    const threshold = glassHeader.getBoundingClientRect().bottom;
+    const groups = document.getElementById('showsList').querySelectorAll('.day-group');
+    let current = null;
+    for (const g of groups) {
+      const div = g.querySelector('.day-divider');
+      if (!div) continue;
+      if (div.getBoundingClientRect().top < threshold) current = div;
+      else break;
+    }
+    if (current) {
+      barText.innerHTML = current.querySelector('.day-divider-text').innerHTML;
+      bar.style.display = 'flex';
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+
+  window._updateStickyDayBar = updateStickyDayBar;
 })();
 
 // ─── List scroll → carousel sync ─────────────────────────────────────────────
@@ -1776,6 +1891,7 @@ document.getElementById('contentScroller').addEventListener('scroll', () => {
 // ─── Init ─────────────────────────────────────────────────────────────────────
 buildMonthTrack();
 renderShows({ m: TODAY_M, d: TODAY_D });
+requestAnimationFrame(() => { if (window._updateStickyDayBar) window._updateStickyDayBar(); });
 </script>
 </body>
 </html>
