@@ -183,7 +183,10 @@ body {
   display: flex; flex-direction: column;
   padding: 22px 20px 22px 44px; gap: 12px; position: relative;
   cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.14s;
-  border-bottom: 1px solid var(--sep-dark);
+}
+.show-group:not(:last-child)::after {
+  content: ''; position: absolute; bottom: 0; left: 20px; right: 20px;
+  height: 1px; background: var(--sep-dark);
 }
 .show-group:active { background: rgba(255,255,255,0.025); }
 
