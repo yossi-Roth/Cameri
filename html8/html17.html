@@ -244,6 +244,17 @@ body {
   padding: 19px 22px 19px;
   font-family: 'FtOrvany', sans-serif; white-space: nowrap;
 }
+
+/* ── Sticky day-bar (lives inside glass-header, text updates via JS) ── */
+/* Visually identical to the inline .day-divider but with transparent bg
+   so it sits on the glass surface. Slightly tighter top padding so it
+   sits closer to the toolbar/carousel above. */
+.sticky-day-bar {
+  display: none;  /* shown by JS once user scrolls past the first day */
+  pointer-events: none;
+  background: transparent;
+  padding-top: 14px;  /* override .day-divider's 19px — 5px tighter */
+}
 .dd-day {
   font-family: 'Caravan', sans-serif; font-weight: 900; font-size: 30px;
   color: var(--text); line-height: 1; letter-spacing: 1px; flex-shrink: 0;
@@ -264,7 +275,7 @@ body {
 ══════════════════════════════════════════ */
 .show-group {
   display: flex; flex-direction: row; align-items: flex-start;
-  padding: 27px 22px 27px 22px; position: relative;
+  padding: 27px 40px 27px 22px; position: relative;
   cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.14s;
 }
 .show-group:not(:last-child)::after {
@@ -304,14 +315,16 @@ body {
 .show-meta-item svg { flex-shrink: 0; }
 .show-meta-times { color: #ffffff; }
 
-/* ── Title row wrapper: anchors chevron to title's vertical center ── */
+/* ── Title row wrapper: anchors chevron to title's vertical center.
+   padding-left reserves a 20px gutter for the chevron (~14px glyph + 6px
+   minimum gap), forcing long titles to wrap before touching the chevron. */
 .show-title-row {
-  position: relative; width: 100%;
+  position: relative; width: 100%; padding-left: 20px;
 }
 
 /* ── Left chevron (exact copy from html11.5) ── */
 .show-chevron {
-  position: absolute; left: -6px; top: 50%; transform: translateY(-50%);
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
   width: auto; height: auto; background: none; box-shadow: none; padding: 0;
   font-size: 26px; color: rgba(245,243,239,0.40);
   direction: ltr; unicode-bidi: isolate; line-height: 1; pointer-events: none;
@@ -650,6 +663,9 @@ body {
         <span class="toolbar-badge" id="dateBadge"></span>
       </button>
     </div>
+    <!-- Sticky day bar — sits inside glass-header so it inherits the blur surface.
+         JS updates its text content as the user scrolls past day boundaries. -->
+    <div class="day-divider sticky-day-bar" id="stickyDayBar"></div>
   </div><!-- /.glass-header -->
 
   <!-- Shows list -->
@@ -1486,6 +1502,7 @@ function renderShows(scrollTarget) {
     requestAnimationFrame(() => {
       if (scrollTarget) scrollToDay(scrollTarget.m, scrollTarget.d, false);
       updateCarouselFromScroll(true);
+      if (window._updateStickyDayBar) window._updateStickyDayBar();
     });
   });
 }
@@ -1993,8 +2010,40 @@ document.querySelectorAll('.filter-row[data-panel]').forEach(row => {
       }
 
       glassHeader.classList.toggle('is-scrolled', st > 10);
+      updateStickyDayBar();
     });
   }, { passive: true });
+
+  const bar = document.getElementById('stickyDayBar');
+
+  /**
+   * Find the topmost day-divider currently scrolled past the glass-header's
+   * visible bottom, then clone its children into the sticky bar.
+   * When no divider has been scrolled past yet, hide the bar.
+   */
+  function updateStickyDayBar() {
+    if (!bar) return;
+    const threshold = glassHeader.getBoundingClientRect().bottom;
+    const groups = document.getElementById('showsList').querySelectorAll('.day-group');
+    let current = null;
+    for (const g of groups) {
+      const div = g.querySelector('.day-divider');
+      if (!div) continue;
+      if (div.getBoundingClientRect().top < threshold) current = div;
+      else break;
+    }
+    if (current) {
+      bar.replaceChildren();
+      for (const child of current.children) {
+        bar.appendChild(child.cloneNode(true));
+      }
+      bar.style.display = 'flex';
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+
+  window._updateStickyDayBar = updateStickyDayBar;
 })();
 
 // ─── List scroll → carousel sync ─────────────────────────────────────────────
@@ -2007,6 +2056,7 @@ document.getElementById('contentScroller').addEventListener('scroll', () => {
 // ─── Init ─────────────────────────────────────────────────────────────────────
 buildMonthTrack();
 renderShows({ m: TODAY_M, d: TODAY_D });
+requestAnimationFrame(() => { if (window._updateStickyDayBar) window._updateStickyDayBar(); });
 </script>
 </body>
 </html>
