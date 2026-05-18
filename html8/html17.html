@@ -298,7 +298,7 @@ body {
 }
 .show-title {
   font-family: 'Caravan', sans-serif; font-weight: 900;
-  font-size: 20px; color: #fff; line-height: 1.05;
+  font-size: 24px; color: #fff; line-height: 1.05;
   text-align: right; width: 100%; letter-spacing: 0.5px;
 }
 /* ── Meta row: clock+times | pin+hall ── */
@@ -326,7 +326,7 @@ body {
 .show-chevron {
   position: absolute; left: 0; top: 50%; transform: translateY(-50%);
   width: auto; height: auto; background: none; box-shadow: none; padding: 0;
-  font-size: 26px; color: rgba(245,243,239,0.40);
+  font-size: 40px; color: var(--link);
   direction: ltr; unicode-bidi: isolate; line-height: 1; pointer-events: none;
 }
 
@@ -336,12 +336,12 @@ body {
 }
 .time-btn {
   flex: 1 1 0; min-width: 0; overflow: hidden; height: 40px;
-  background: var(--red); border: none; color: #ffffff;
-  border-radius: 0;
+  background: transparent; border: 1px solid #ffffff; color: #ffffff;
+  border-radius: 0; opacity: 0.8;
   display: flex; align-items: center; justify-content: center;
   padding: 0 10px; gap: 0;
   cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s; direction: ltr;
+  transition: background 0.15s, opacity 0.15s; direction: ltr;
 }
 .time-btn:active { background: var(--red-hover); }
 .time-btn-time {
@@ -2058,5 +2058,9 @@ buildMonthTrack();
 renderShows({ m: TODAY_M, d: TODAY_D });
 requestAnimationFrame(() => { if (window._updateStickyDayBar) window._updateStickyDayBar(); });
 </script>
+<!-- css-inspector:start -->
+<script>window.__inspectorSettings = {"detection":{"detected":[],"recommended":null},"preset":"claude","manifest":{"components":[]}};</script>
+<script src="/.inspector/overlay.js"></script>
+<!-- css-inspector:end -->
 </body>
 </html>
